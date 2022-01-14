@@ -14,6 +14,11 @@ const Navigation: NextPage = () => {
             >
                 <a>Clock</a>
             </Link>
+            <Link
+                href="/linked-dots"
+            >
+                <a>LinkedDots</a>
+            </Link>
         </nav>
     );
 }
