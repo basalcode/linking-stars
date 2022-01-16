@@ -1,23 +1,25 @@
 import type { NextPage } from 'next'
 import Link from 'next/link';
 
+import style from './Navigation.module.scss';
+
 const Navigation: NextPage = () => {
     return (
-        <nav>
+        <nav className={style.navigation}>
             <Link
                 href="/"
             >
-                <a>Home</a>
+                <a className={style.link}>Home</a>
             </Link>
             <Link
                 href="/clock"
             >
-                <a>Clock</a>
+                <a className={style.link}>Clock</a>
             </Link>
             <Link
                 href="/linked-dots"
             >
-                <a>LinkedDots</a>
+                <a className={style.link}>LinkedDots</a>
             </Link>
         </nav>
     );
