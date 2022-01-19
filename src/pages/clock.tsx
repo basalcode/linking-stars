@@ -22,6 +22,7 @@ const Clock: NextPage = () => {
     return (
         <Layout>
             {time}
+
         </Layout>
     );
 }
