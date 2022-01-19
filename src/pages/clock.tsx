@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 
 import Layout from '../components/common/Layout';
 
+import style from './clock.module.scss';
+
 const Clock: NextPage = () => {
     const [time, setTime] = useState<string>("");
 
@@ -13,16 +15,17 @@ const Clock: NextPage = () => {
             const minute = now.getMinutes().toLocaleString(undefined, { minimumIntegerDigits: 2 });
             const second = now.getSeconds().toLocaleString(undefined, { minimumIntegerDigits: 2 });
 
-            const timeString = `${hour}:${minute}:${second}`;
+            const currentTime: string = `${hour}:${minute}:${second}`;
 
-            setTime(timeString);
+            setTime(currentTime);
         }, 1000);
     }, [time]);
 
     return (
         <Layout>
-            {time}
-
+            <p className={style.timeText}>
+                {time}
+            </p>
         </Layout>
     );
 }
