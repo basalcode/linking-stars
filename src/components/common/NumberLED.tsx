@@ -2,7 +2,8 @@ import type { NextPage } from 'next'
 
 import style from './NumberLED.module.scss';
 
-const NumberLED: NextPage = () => {
+const NumberLED: NextPage = (props: object) => {
+    const number = 1;
     const ledLight: object = {
         one: [false, false, true, false, false, true, false],
         two: [false, false, true, false, false, true, false],
@@ -14,6 +15,8 @@ const NumberLED: NextPage = () => {
         eight: [false, false, true, false, false, true, false],
         nine: [false, false, true, false, false, true, false]
     }
+
+
 
     return (
         <div className={style.numberLED}>

@@ -1,8 +1,11 @@
 .numberLED {
+    display: flex;
     position: relative;
 }
 
 .ledLine {
+    margin-right: 10px;
+
     &--on {
         
     }
