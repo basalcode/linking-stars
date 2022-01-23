@@ -1,4 +1,5 @@
 import type { NextPage } from 'next'
+import { useMemo } from 'react';
 
 import style from './NumberLED.module.scss';
 
@@ -18,15 +19,18 @@ const NumberLED: NextPage = (props: object) => {
 
     const currentLedLight = ledLight[number - 1];
 
+    const ledLines = useMemo(() => {
+        return currentLedLight.map((isOn, index) => {
+            <div
+                key={index}
+                className={`${style.ledLine} ${isOn && style["ledLine--on"]}`}
+            ></div>
+        });
+    }, [number]);
+
     return (
         <div className={style.numberLED}>
-            <div className={`${style.ledLine} ${style["ledLine--on"]}`}></div>
-            <div className={`${style.ledLine} ${style["ledLine--on"]}`}></div>
-            <div className={`${style.ledLine} ${style["ledLine--on"]}`}></div>
-            <div className={`${style.ledLine} ${style["ledLine--on"]}`}></div>
-            <div className={`${style.ledLine} ${style["ledLine--on"]}`}></div>
-            <div className={`${style.ledLine} ${style["ledLine--on"]}`}></div>
-            <div className={`${style.ledLine} ${style["ledLine--on"]}`}></div>
+            {ledLines}
         </div>
     );
 }
