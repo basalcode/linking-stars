@@ -2,6 +2,7 @@ import type { NextPage } from 'next'
 import { useEffect, useState } from 'react';
 
 import Layout from '../components/common/Layout';
+import NumberLED from 'components/common/NumberLED';
 
 import style from './clock.module.scss';
 
@@ -26,6 +27,7 @@ const Clock: NextPage = () => {
             <p className={style.timeText}>
                 {time}
             </p>
+            <NumberLED />
         </Layout>
     );
 }

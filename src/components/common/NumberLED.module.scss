@@ -1,12 +1,17 @@
 .numberLED {
     display: flex;
     position: relative;
+
+    border: 1px solid black;
+
+    width: 200px;
+    height: 20px;
 }
 
 .ledLine {
     margin-right: 10px;
 
     &--on {
-        
+        border: 1px solid red;
     }
 }
