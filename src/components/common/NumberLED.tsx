@@ -44,6 +44,7 @@ const NumberLED: NextPage = () => {
                         height: ledPosition[index].height
                     }}
                     className={`${style.ledLine} ${isOn && style["ledLine--on"]}`}
+
                 ></div>
             );
         });
