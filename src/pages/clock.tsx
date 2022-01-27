@@ -7,7 +7,7 @@ import NumberLED from 'components/common/NumberLED';
 import style from './clock.module.scss';
 
 const Clock: NextPage = () => {
-    const [time, setTime] = useState<string>("");
+    const [time, setTime] = useState<string[]>([]);
 
     useEffect(() => {
         setTimeout(() => {
@@ -16,20 +16,28 @@ const Clock: NextPage = () => {
             const minute = now.getMinutes().toLocaleString(undefined, { minimumIntegerDigits: 2 });
             const second = now.getSeconds().toLocaleString(undefined, { minimumIntegerDigits: 2 });
 
-            const currentTime: string = `${hour}:${minute}:${second}`;
+            const currentTime: string = `${hour}${minute}${second}`;
+            const splitedCurrentTime = currentTime.split("");
 
-            setTime(currentTime);
+
+            setTime(splitedCurrentTime);
         }, 1000);
     }, [time]);
 
     return (
         <Layout>
-            <p className={style.timeText}>
-                {time}
-            </p>
-            <NumberLED />
+            <div className={style.container}>
+                <NumberLED value={Number(time[0])} />
+                <NumberLED value={Number(time[1])} />
+                :
+                <NumberLED value={Number(time[2])} />
+                <NumberLED value={Number(time[3])} />
+                :
+                <NumberLED value={Number(time[4])} />
+                <NumberLED value={Number(time[5])} />
+            </div>
         </Layout>
     );
 }
 
-export default Clock; 
+export default Clock;

@@ -1,11 +1,9 @@
 import type { NextPage } from 'next'
-import { useMemo } from 'react';
+import { FunctionComponent, ReactNode, useMemo } from 'react';
 
 import style from './NumberLED.module.scss';
 
-const NumberLED: NextPage = () => {
-    const number = 9;
-
+const NumberLED = (props: { value: number }) => {
     const ledLight = [
         [true, true, true, true, false, true, true],
         [false, false, true, false, false, true, false],
@@ -16,7 +14,7 @@ const NumberLED: NextPage = () => {
         [true, false, false, true, true, true, true],
         [false, true, true, false, false, true, false],
         [true, true, true, true, true, true, true],
-        [true, true, true, false, true, true, false],
+        [true, true, true, false, true, true, false]
     ];
 
     const ledPosition = [
@@ -29,10 +27,10 @@ const NumberLED: NextPage = () => {
         { x: 0, y: 20, width: 10, height: 2 }
     ]
 
-    const currentLedLight = ledLight[number];
+    const currentLedLight = ledLight[props.value];
 
     const ledLines = useMemo(() => {
-        return currentLedLight.map((isOn, index) => {
+        return currentLedLight?.map((isOn, index) => {
             return (
                 <div
                     key={index}
@@ -46,7 +44,7 @@ const NumberLED: NextPage = () => {
                 ></div>
             );
         });
-    }, [number]);
+    }, [props.value]);
 
     return (
         <div className={style.numberLED}>
