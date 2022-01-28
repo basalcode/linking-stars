@@ -24,17 +24,60 @@ const Clock: NextPage = () => {
         }, 1000);
     }, [time]);
 
+
     return (
         <Layout>
             <div className={style.container}>
-                <NumberLED value={Number(time[0])} />
-                <NumberLED value={Number(time[1])} />
+                <NumberLED
+                    value={Number(time[0])}
+                    x={0}
+                    y={0}
+                    width={5}
+                    height={10}
+                    thickness={2}
+                />
+                <NumberLED
+                    value={Number(time[1])}
+                    x={0}
+                    y={0}
+                    width={5}
+                    height={10}
+                    thickness={2}
+                />
                 :
-                <NumberLED value={Number(time[2])} />
-                <NumberLED value={Number(time[3])} />
+                <NumberLED
+                    value={Number(time[2])}
+                    x={0}
+                    y={0}
+                    width={5}
+                    height={10}
+                    thickness={2}
+                />
+                <NumberLED
+                    value={Number(time[3])}
+                    x={0}
+                    y={0}
+                    width={5}
+                    height={10}
+                    thickness={2}
+                />
                 :
-                <NumberLED value={Number(time[4])} />
-                <NumberLED value={Number(time[5])} />
+                <NumberLED
+                    value={Number(time[4])}
+                    x={0}
+                    y={0}
+                    width={5}
+                    height={10}
+                    thickness={2}
+                />
+                <NumberLED
+                    value={Number(time[5])}
+                    x={0}
+                    y={0}
+                    width={5}
+                    height={10}
+                    thickness={2}
+                />
             </div>
         </Layout>
     );
