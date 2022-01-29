@@ -19,7 +19,6 @@ const Clock: NextPage = () => {
             const currentTime: string = `${hour}${minute}${second}`;
             const splitedCurrentTime = currentTime.split("");
 
-
             setTime(splitedCurrentTime);
         }, 1000);
     }, [time]);
@@ -44,7 +43,7 @@ const Clock: NextPage = () => {
                     height={10}
                     thickness={2}
                 />
-                :
+                <div className="colon">:</div>
                 <NumberLED
                     value={Number(time[2])}
                     x={0}
@@ -61,7 +60,7 @@ const Clock: NextPage = () => {
                     height={10}
                     thickness={2}
                 />
-                :
+                <div className="colon">:</div>
                 <NumberLED
                     value={Number(time[4])}
                     x={0}
