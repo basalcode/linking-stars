@@ -29,53 +29,23 @@ const Clock: NextPage = () => {
             <div className={style.container}>
                 <NumberLED
                     value={Number(time[0])}
-                    x={0}
-                    y={0}
-                    width={5}
-                    height={10}
-                    thickness={2}
                 />
                 <NumberLED
                     value={Number(time[1])}
-                    x={0}
-                    y={0}
-                    width={5}
-                    height={10}
-                    thickness={2}
                 />
                 <div className="colon">:</div>
                 <NumberLED
                     value={Number(time[2])}
-                    x={0}
-                    y={0}
-                    width={5}
-                    height={10}
-                    thickness={2}
                 />
                 <NumberLED
                     value={Number(time[3])}
-                    x={0}
-                    y={0}
-                    width={5}
-                    height={10}
-                    thickness={2}
                 />
                 <div className="colon">:</div>
                 <NumberLED
                     value={Number(time[4])}
-                    x={0}
-                    y={0}
-                    width={5}
-                    height={10}
-                    thickness={2}
                 />
                 <NumberLED
                     value={Number(time[5])}
-                    x={0}
-                    y={0}
-                    width={5}
-                    height={10}
-                    thickness={2}
                 />
             </div>
         </Layout>
