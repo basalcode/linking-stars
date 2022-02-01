@@ -10,8 +10,8 @@ const Layout: NextPage = ({ children }) => {
     <div className={style.layout}>
       <Header />
       <Navigation />
-      <main>
-        {children} 
+      <main className={style.main}>
+        {children}
       </main>
     </div>
   );
