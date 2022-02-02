@@ -12,14 +12,26 @@ const LinkedDots: NextPage = () => {
         if (!canvasRef?.current) return;
 
         const canvasElement = canvasRef.current;
+        const context = canvasElement.getContext('2d');
 
+        const pointAmount = 10;
 
+        const width = canvasElement.clientWidth;
+        const height = canvasElement.clientHeight;
 
+        for (let i = 0; i < pointAmount; i++) {
+            const randomHeight = Math.random() * height;
+            const randomWidth = Math.random() * width;
+
+            context.fillRect(randomHeight, randomWidth, 1, 1);
+        }
     }, [canvasRef]);
 
     return (
         <Layout>
             <canvas
+                id="canvas"
+                ref={canvasRef}
                 className={style.canvas}
             ></canvas>
         </Layout>
