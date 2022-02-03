@@ -20,12 +20,16 @@ const LinkedDots: NextPage = () => {
         const height = canvasElement.clientHeight;
 
         for (let i = 0; i < pointAmount; i++) {
-            const randomHeight = Math.random() * height;
-            const randomWidth = Math.random() * width;
+            const randomX = Math.floor(Math.random() * width);
+            const randomY = Math.floor(Math.random() * height);
+            const radius = 1;
 
-            context.fillRect(randomHeight, randomWidth, 1, 1);
+            context.beginPath();
+            context.arc(randomX, randomY, radius, 0, 2 * Math.PI, true);
+            context.fill();
+            context.stroke();
+
         }
-
     }, [canvasRef]);
 
     return (
