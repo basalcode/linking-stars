@@ -25,6 +25,7 @@ const LinkedDots: NextPage = () => {
 
             context.fillRect(randomHeight, randomWidth, 1, 1);
         }
+
     }, [canvasRef]);
 
     return (
