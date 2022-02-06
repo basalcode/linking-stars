@@ -28,3 +28,5 @@ const commerce = (state = initialState, action) => {
         }
     }
 }
+
+export default commerce;
