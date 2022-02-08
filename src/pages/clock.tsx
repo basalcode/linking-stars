@@ -10,7 +10,7 @@ const Clock: NextPage = () => {
     const [time, setTime] = useState<string[]>([]);
 
     useEffect(() => {
-        setTimeout(() => {
+        const getTimeElements = (): string[] => {
             const now = new Date();
             const hour = now.getHours().toLocaleString(undefined, { minimumIntegerDigits: 2 });
             const minute = now.getMinutes().toLocaleString(undefined, { minimumIntegerDigits: 2 });
@@ -19,7 +19,13 @@ const Clock: NextPage = () => {
             const currentTime: string = `${hour}${minute}${second}`;
             const splitedCurrentTime = currentTime.split("");
 
-            setTime(splitedCurrentTime);
+            return splitedCurrentTime;
+        }
+
+        setTime(getTimeElements());
+
+        setTimeout(() => {
+            setTime(getTimeElements());
         }, 1000);
     }, [time]);
 

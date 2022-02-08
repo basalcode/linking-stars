@@ -6,7 +6,6 @@ import Layout from '../components/common/Layout';
 import style from './linked-dots.module.scss';
 
 const LinkedDots: NextPage = () => {
-
     useEffect(() => {
         const canvasElement = document.getElementById("linkedDotsCanvas");
         const context = canvasElement.getContext('2d');
@@ -20,7 +19,6 @@ const LinkedDots: NextPage = () => {
         for (let i = 0; i < pointAmount; i++) {
             const randomX = Math.floor(Math.random() * width);
             const randomY = Math.floor(Math.random() * height);
-
             console.log("randomX", randomX, "randomY", randomY);
 
             context.rect(randomX, randomY, 1, 1);
