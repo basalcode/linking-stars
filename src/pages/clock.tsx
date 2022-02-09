@@ -23,7 +23,6 @@ const Clock: NextPage = () => {
         }
 
         setTime(getTimeElements());
-
         setTimeout(() => {
             setTime(getTimeElements());
         }, 1000);
