@@ -1,18 +1,18 @@
 import type { NextPage } from 'next'
-import { useEffect, useMemo, useRef } from 'react';
+import { FunctionComponent, useEffect, useMemo, useRef } from 'react';
 
 import Layout from '../components/common/Layout';
 
 import style from './linked-dots.module.scss';
 
-const LinkedDots: NextPage = () => {
+const LinkedDots: FunctionComponent = () => {
     useEffect(() => {
-        const canvasElement = document.getElementById("linkedDotsCanvas");
+        const canvasElement = document.getElementById("linkedDotsCanvas") as HTMLCanvasElement;
         const context = canvasElement.getContext('2d');
 
         const pointAmount = 10;
-        const width = canvasElement.clientWidth;
-        const height = canvasElement.clientHeight;
+        const width: number = canvasElement?.clientWidth;
+        const height: number = canvasElement?.clientHeight;
         console.log("width", width);
         console.log("height", height);
 
@@ -21,9 +21,9 @@ const LinkedDots: NextPage = () => {
             const randomY = Math.floor(Math.random() * height);
             console.log("randomX", randomX, "randomY", randomY);
 
-            context.rect(randomX, randomY, 1, 1);
+            context?.rect(randomX, randomY, 1, 1);
         }
-        context.fill();
+        context?.fill();
     }, []);
 
     return (

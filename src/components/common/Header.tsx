@@ -1,8 +1,13 @@
 import type { NextPage } from 'next'
+import { FunctionComponent } from 'react';
 
 import style from './Header.module.scss';
 
-const Header: NextPage = ({ children }) => {
+interface Props {
+    children?: HTMLElement
+}
+
+const Header: FunctionComponent<Props> = ({ children }) => {
     return (
         <header
             className={style.header}

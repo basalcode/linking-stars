@@ -1,9 +1,10 @@
 import type { NextPage } from 'next'
 import Link from 'next/link';
+import { FunctionComponent } from 'react';
 
 import style from './Navigation.module.scss';
 
-const Navigation: NextPage = () => {
+const Navigation: FunctionComponent = () => {
     return (
         <nav className={style.navigation}>
             <Link

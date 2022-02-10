@@ -4,8 +4,13 @@ import Header from './Header';
 import Navigation from './Navigation';
 
 import style from './Layout.module.scss';
+import { FunctionComponent, ReactNode } from 'react';
 
-const Layout: NextPage = ({ children }) => {
+interface Props {
+  children?: ReactNode
+}
+
+const Layout: FunctionComponent<Props> = ({ children }) => {
   return (
     <div className={style.layout}>
       <Header />

@@ -1,0 +1,221 @@
+[33mcommit d7671ce6e3525ab7cd6a20d1177159f8181ffc6c[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m)[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Thu Feb 10 23:55:28 2022 +0900
+
+    Update typescript errors
+
+[33mcommit fe5f18869a30cfafee9ed98a0c51bdf9f8f3b347[m[33m ([m[1;31morigin/main[m[33m)[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Wed Feb 9 23:56:10 2022 +0900
+
+    Update minor css
+
+[33mcommit f76165f6f408ef53ff27f67176dc18672066d1da[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Tue Feb 8 23:49:22 2022 +0900
+
+    Update clock display error
+
+[33mcommit 360d1c999fa9245e69db49cadb5fad99aae977b7[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Mon Feb 7 23:52:12 2022 +0900
+
+    Update folders
+
+[33mcommit 2846c1baef697a28438200f041a4584ef9487736[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Mon Feb 7 23:51:40 2022 +0900
+
+    Update folders
+
+[33mcommit 4df81dc8af67957c103d506c7c823c48288756d7[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Sun Feb 6 11:19:56 2022 +0900
+
+    Create saga and install redux packages
+
+[33mcommit 703305a5d6ab51e2f378567998ec33dfe89cc373[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Sat Feb 5 23:51:01 2022 +0900
+
+    Create store with redux
+
+[33mcommit ba67ebf20b21efba2e2d8c3abdb0e46cd1036fdf[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Fri Feb 4 23:55:34 2022 +0900
+
+    Try to find point draw feature error
+
+[33mcommit 2f56f3bca6ee79666163f22dcb9d502c9042a58b[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Fri Feb 4 00:24:07 2022 +0900
+
+    Update random dot logic
+
+[33mcommit 8295fdee53fece2a3250282e71818d9eed803304[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Thu Feb 3 23:50:04 2022 +0900
+
+    Create
+
+[33mcommit 74a1ecba3935f0ee36bea7fcb578014558f31fe0[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Wed Feb 2 23:57:59 2022 +0900
+
+    Create random point on canvas
+
+[33mcommit e9c1c179ee1d0e5da16d3f1f6effef9903b50b79[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Tue Feb 1 23:54:36 2022 +0900
+
+    Create cavnas on linked dot page
+
+[33mcommit 852dcc05ba93d2ecc6930e7b09898879167b8103[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Mon Jan 31 23:34:22 2022 +0900
+
+    Create style of clock
+
+[33mcommit b95d3e2824755730d101727cd497e3dd77c455a3[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Sun Jan 30 23:23:29 2022 +0900
+
+    Delete styles to update
+
+[33mcommit 906b9a47aeb4312702b8da127fb30c518c7440ec[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Sat Jan 29 23:52:50 2022 +0900
+
+    Update css
+
+[33mcommit f9b2c72074552f49fc520f2f241d62313d432556[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Fri Jan 28 23:54:05 2022 +0900
+
+    Update led structure
+
+[33mcommit 22be07b13a6f9b0022d7cd0bb4ab74f2876bcc16[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Thu Jan 27 23:52:10 2022 +0900
+
+    Create clock display
+
+[33mcommit 3bd85944abd75e6dd1ee8648956bb651f3e16370[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Thu Jan 27 00:08:17 2022 +0900
+
+    Update led data correctly
+
+[33mcommit 367136786faee0305e3ad06e024a6c85a72ae794[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Wed Jan 26 23:46:15 2022 +0900
+
+    Create
+
+[33mcommit 4a701e9f8d69e2f8367998b9ea26e206c79ae1ef[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Tue Jan 25 23:54:11 2022 +0900
+
+    Create position of led NumberLED
+
+[33mcommit 56b6977e20519202100bd0671f851cc752eead88[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Mon Jan 24 23:57:49 2022 +0900
+
+    Update number led data
+
+[33mcommit 5b425fc9e7fd5f85d3c819c997d5236796c1e848[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Sun Jan 23 23:32:34 2022 +0900
+
+    Update led line structure
+
+[33mcommit 51754fe41684130e42c231733e218dcf33693148[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Sat Jan 22 23:58:30 2022 +0900
+
+    Change led type
+
+[33mcommit 35b8fd7b44bd5f1820fd805bb24196888b9d5184[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Sat Jan 22 23:53:44 2022 +0900
+
+    aa
+
+[33mcommit fe9813bcc52ec8db53b094d997a9ef36fa0d6de7[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Fri Jan 21 23:51:27 2022 +0900
+
+    Create led number data
+
+[33mcommit e041aec26561c178ed1cf7e22b0d9569039a5a37[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Thu Jan 20 23:19:25 2022 +0900
+
+    Create NumberLED component
+
+[33mcommit 0994475c21b0202d78925e3fd0c07de14fa5d1d3[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Thu Jan 20 00:15:54 2022 +0900
+
+    Update clock style
+
+[33mcommit 603d58578a7918cc7829849406bc2fd23972cd9d[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Wed Jan 19 23:58:54 2022 +0900
+
+    Create
+
+[33mcommit 0d7d842d0a2c9d367d550cb417da73a99bcad3ff[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Tue Jan 18 23:57:56 2022 +0900
+
+    Create parsed clock
+
+[33mcommit 64073ca0af5362b60d36a4bbc0e7e5bc819870e2[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Mon Jan 17 23:53:30 2022 +0900
+
+    Create clock and set style
+
+[33mcommit d42ba22d8c066b50ee2b0ae7f125ea15b747f019[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Sun Jan 16 23:51:56 2022 +0900
+
+    Style common document and layout
+
+[33mcommit 9f5f17cc876878b991d9be9758998c963ea65aef[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Sat Jan 15 00:50:55 2022 +0900
+
+    Create linked dots page
+
+[33mcommit 28dc1feeb70fe9250be84b87a3e69fce07c4a5c4[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Fri Jan 14 23:52:44 2022 +0900
+
+    Create clock page and Navigation
+
+[33mcommit 2ef77c48f04f227bcf2b86374a6a4bb6ea4de151[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Thu Jan 13 23:15:27 2022 +0900
+
+    Create common layout
+
+[33mcommit 710d1942259722c3ba8eb90ce7dc130b78e9b0fc[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Tue Jan 4 23:45:17 2022 +0900
+
+    Install packages
+
+[33mcommit 38f6fd5f4e7f5b8482e99b660bd102cbb1e5ade4[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Tue Jan 4 23:28:57 2022 +0900
+
+    Create new project
+
+[33mcommit e9701b81d0ca4d95fafffb730bc89811fd7282c7[m
+Author: basalcode <basalcode@gmail.com>
+Date:   Tue Jan 4 23:17:59 2022 +0900
+
+    Initial commit from Create Next App
