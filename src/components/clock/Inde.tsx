@@ -5,28 +5,26 @@ import NumberLED from 'components/common/NumberLED';
 
 import style from './index.module.scss';
 
+const getTimeElements = (): string[] => {
+    const now = new Date();
+    const hour = now.getHours().toLocaleString(undefined, { minimumIntegerDigits: 2 });
+    const minute = now.getMinutes().toLocaleString(undefined, { minimumIntegerDigits: 2 });
+    const second = now.getSeconds().toLocaleString(undefined, { minimumIntegerDigits: 2 });
+
+    const currentTime: string = `${hour}${minute}${second}`;
+    const splitedCurrentTime = currentTime.split("");
+
+    return splitedCurrentTime;
+}
+
 const Index: FunctionComponent = () => {
-    const [time, setTime] = useState<string[]>([]);
+    const [time, setTime] = useState<string[]>(getTimeElements());
 
     useEffect(() => {
-        const getTimeElements = (): string[] => {
-            const now = new Date();
-            const hour = now.getHours().toLocaleString(undefined, { minimumIntegerDigits: 2 });
-            const minute = now.getMinutes().toLocaleString(undefined, { minimumIntegerDigits: 2 });
-            const second = now.getSeconds().toLocaleString(undefined, { minimumIntegerDigits: 2 });
-
-            const currentTime: string = `${hour}${minute}${second}`;
-            const splitedCurrentTime = currentTime.split("");
-
-            return splitedCurrentTime;
-        }
-
-        setTime(getTimeElements());
         setTimeout(() => {
             setTime(getTimeElements());
         }, 1000);
     }, [time]);
-
 
     return (
         <Layout>
