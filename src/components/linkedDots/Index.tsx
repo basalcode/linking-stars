@@ -9,7 +9,6 @@ const Index: FunctionComponent = () => {
 
     useEffect(() => {
         if (!canvasElement) return;
-
         const context: CanvasRenderingContext2D | null = canvasElement.getContext('2d');
 
         if (!canvasElement) return;
@@ -20,10 +19,8 @@ const Index: FunctionComponent = () => {
         const height: number = canvasElement.height;
 
         for (let i = 0; i < pointAmount; i++) {
-
-
-            const randomX = Math.floor(Math.random() * width);
-            const randomY = Math.floor(Math.random() * height);
+            const randomX: number = Math.floor(Math.random() * width);
+            const randomY: number = Math.floor(Math.random() * height);
 
             context?.strokeRect(randomX, randomY, 1, 1);
         }
