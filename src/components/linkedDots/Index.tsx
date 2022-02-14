@@ -4,6 +4,12 @@ import Layout from 'components/common/Layout';
 
 import style from './Index.module.scss';
 
+interface dot {
+    x: number,
+    y: number,
+    degree: number,
+}
+
 const Index: FunctionComponent = () => {
     const [canvasElement, setCanvasElement] = useState<HTMLCanvasElement | null>(null);
 
@@ -18,11 +24,25 @@ const Index: FunctionComponent = () => {
         const width: number = canvasElement.width;
         const height: number = canvasElement.height;
 
-        for (let i = 0; i < pointAmount; i++) {
-            const randomX: number = Math.floor(Math.random() * width);
-            const randomY: number = Math.floor(Math.random() * height);
+        const dots: Array<dot> = [];
 
-            context?.strokeRect(randomX, randomY, 1, 1);
+        for (let i = 0; i < pointAmount; i++) {
+            const x: number = Math.floor(Math.random() * width);
+            const y: number = Math.floor(Math.random() * height);
+            const radian: number = Math.random() * (Math.PI * 2);
+            const degree: number = radian / Math.PI * 180;
+
+            const dot: dot = {
+                x: x,
+                y: y,
+                degree: degree
+            }
+
+            dots.push(dot);
+
+            console.log(degree);
+
+            context?.strokeRect(x, y, 1, 1);
         }
 
         return () => { context.clearRect(0, 0, width, height); }
