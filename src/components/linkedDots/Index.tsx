@@ -4,7 +4,7 @@ import Layout from 'components/common/Layout';
 
 import style from './Index.module.scss';
 
-interface dot {
+interface Dot {
     x: number,
     y: number,
     degree: number,
@@ -12,6 +12,9 @@ interface dot {
 
 const Index: FunctionComponent = () => {
     const [canvasElement, setCanvasElement] = useState<HTMLCanvasElement | null>(null);
+    const [dots, setDots] = useState<Array<Dot>>([]);
+
+    const pointAmount: number = 10;
 
     useEffect(() => {
         if (!canvasElement) return;
@@ -19,12 +22,9 @@ const Index: FunctionComponent = () => {
 
         if (!canvasElement) return;
         if (!context) return;
-        const pointAmount: number = 10;
 
         const width: number = canvasElement.width;
         const height: number = canvasElement.height;
-
-        const dots: Array<dot> = [];
 
         for (let i = 0; i < pointAmount; i++) {
             const x: number = Math.floor(Math.random() * width);
@@ -32,7 +32,7 @@ const Index: FunctionComponent = () => {
             const radian: number = Math.random() * (Math.PI * 2);
             const degree: number = radian / Math.PI * 180;
 
-            const dot: dot = {
+            const dot: Dot = {
                 x: x,
                 y: y,
                 degree: degree
@@ -40,13 +40,27 @@ const Index: FunctionComponent = () => {
 
             dots.push(dot);
 
-            console.log(degree);
-
             context?.strokeRect(x, y, 1, 1);
         }
 
         return () => { context.clearRect(0, 0, width, height); }
     }, [canvasElement]);
+
+    const framePerSecond = 144;
+    const secondUnit = 1000;
+    const secondPerFrame = secondUnit / framePerSecond;
+
+    useEffect(() => {
+        setTimeout(() => {
+            const newDots = dots.map((dot: Dot) => {
+                const newDot = { x: 0, y: 0, degree: 0 };
+
+                return newDot;
+            });
+
+            setDots(newDots);
+        }, secondPerFrame);
+    }, [dots]);
 
     return (
         <Layout>
