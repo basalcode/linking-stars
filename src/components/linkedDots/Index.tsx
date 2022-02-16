@@ -12,6 +12,7 @@ interface Dot {
 
 const Index: FunctionComponent = () => {
     const [canvasElement, setCanvasElement] = useState<HTMLCanvasElement | null>(null);
+    const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
     const [dots, setDots] = useState<Array<Dot>>([]);
 
     const pointAmount: number = 10;
@@ -22,6 +23,8 @@ const Index: FunctionComponent = () => {
 
         if (!canvasElement) return;
         if (!context) return;
+
+        setContext(context);
 
         const width: number = canvasElement.width;
         const height: number = canvasElement.height;
@@ -53,8 +56,13 @@ const Index: FunctionComponent = () => {
     useEffect(() => {
         setTimeout(() => {
             const newDots = dots.map((dot: Dot) => {
-                const newDot = { x: 0, y: 0, degree: 0 };
+                const newX: number = dot.x + 1;
+                const newY: number = dot.y + 1;
 
+                const newDot = { x: newX, y: newY, degree: 0 };
+                context?.beginPath();
+                context?.rect(newX, newY, 1, 1);
+                context?.stroke();
                 return newDot;
             });
 
