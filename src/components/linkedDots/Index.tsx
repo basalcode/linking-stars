@@ -8,6 +8,7 @@ interface Dot {
     x: number,
     y: number,
     degree: number,
+    speed: number
 }
 
 const Index: FunctionComponent = () => {
@@ -34,11 +35,13 @@ const Index: FunctionComponent = () => {
             const y: number = Math.floor(Math.random() * height);
             const radian: number = Math.random() * (Math.PI * 2);
             const degree: number = radian / Math.PI * 180;
+            const speed: number = 1;
 
             const dot: Dot = {
                 x: x,
                 y: y,
-                degree: degree
+                degree: degree,
+                speed: speed
             }
 
             dots.push(dot);
@@ -55,14 +58,19 @@ const Index: FunctionComponent = () => {
 
     useEffect(() => {
         setTimeout(() => {
+            const width: number = canvasElement?.width || 0;
+            const height: number = canvasElement?.height || 0;
+
+            context?.clearRect(0, 0, width, height);
+
             const newDots = dots.map((dot: Dot) => {
                 const newX: number = dot.x + 1;
                 const newY: number = dot.y + 1;
 
-                const newDot = { x: newX, y: newY, degree: 0 };
-                context?.beginPath();
-                context?.rect(newX, newY, 1, 1);
-                context?.stroke();
+                const newDot = { x: newX, y: newY, degree: 1, speed: 1 };
+
+                context?.strokeRect(newDot.x, newDot.y, 1, 1);
+
                 return newDot;
             });
 
