@@ -7,7 +7,7 @@ import style from './Index.module.scss';
 interface Dot {
     x: number,
     y: number,
-    degree: number,
+    radian: number,
     speed: number
 }
 
@@ -40,7 +40,7 @@ const Index: FunctionComponent = () => {
             const dot: Dot = {
                 x: x,
                 y: y,
-                degree: degree,
+                radian: radian,
                 speed: speed
             }
 
@@ -64,10 +64,13 @@ const Index: FunctionComponent = () => {
             context?.clearRect(0, 0, width, height);
 
             const newDots = dots.map((dot: Dot) => {
-                const newX: number = dot.x + 1;
-                const newY: number = dot.y + 1;
+                const moveX: number = Math.cos(dot.radian) * dot.speed;
+                const moveY: number = Math.sin(dot.radian) * dot.speed;
 
-                const newDot = { x: newX, y: newY, degree: 1, speed: 1 };
+                const newX: number = dot.x + moveX;
+                const newY: number = dot.y + moveY;
+
+                const newDot = { x: newX, y: newY, radian: dot.radian, speed: dot.speed };
 
                 context?.strokeRect(newDot.x, newDot.y, 1, 1);
 
