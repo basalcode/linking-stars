@@ -16,7 +16,7 @@ const Index: FunctionComponent = () => {
     const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
     const [dots, setDots] = useState<Array<Dot>>([]);
 
-    const pointAmount: number = 1;
+    const pointAmount: number = 10;
 
     useEffect(() => {
         if (!canvasElement) return;
@@ -43,13 +43,9 @@ const Index: FunctionComponent = () => {
                 radian: radian,
                 speed: speed
             }
-
-            console.log("radian", radian);
-            // console.log("degree", radian / Math.PI * 180);
-
             dots.push(dot);
 
-            context?.strokeRect(x, y, 1, 1);
+            context?.strokeRect(x, y, 4, 4);
         }
 
         return () => {
@@ -75,9 +71,7 @@ const Index: FunctionComponent = () => {
     }
 
     const getQuadrantDirection = (originalQuadrantIndex: number, boundIndex: number): number => {
-        // console.log("originalQuadrantIndex", originalQuadrantIndex, "boundIndex", boundIndex);
-
-        return originalQuadrantIndex > boundIndex ? 1 : -1;
+        return moveQuadrantIndex(originalQuadrantIndex, -1) === boundIndex ? 1 : -1;
     }
 
     const quadrantAmount = 4;
@@ -90,16 +84,9 @@ const Index: FunctionComponent = () => {
     }
 
     const getReflexedDot = (currentDot: Dot, boundaryIndex: number): Dot => {
-        const originalQuadrantIndex: number = getQuadrantIndex(currentDot.radian); // 0
-        console.log(`${originalQuadrantIndex}`);
-
-        const quadrantDirection: number = getQuadrantDirection(originalQuadrantIndex, boundaryIndex); // 1
-        // console.log(`${quadrantDirection}`);
-
-        const newQuadrantIndex = moveQuadrantIndex(originalQuadrantIndex, quadrantDirection); // 1
-
-        // console.log("original => new", originalQuadrantIndex, "=>", newQuadrantIndex);
-
+        const originalQuadrantIndex: number = getQuadrantIndex(currentDot.radian);
+        const quadrantDirection: number = getQuadrantDirection(originalQuadrantIndex, boundaryIndex);
+        const newQuadrantIndex = moveQuadrantIndex(originalQuadrantIndex, quadrantDirection);
         const newRadian = getQuadrantMinRadian(newQuadrantIndex) + ((Math.PI / 2) - getOverflowedRadian(currentDot.radian));
 
         const newMoveX: number = Math.cos(newRadian) * currentDot.speed;
@@ -108,23 +95,12 @@ const Index: FunctionComponent = () => {
         let newX: number = currentDot.x + newMoveX;
         let newY: number = currentDot.y + newMoveY;
 
-        newX = newX < 0 ? 0 : newX;
-        newY = newY < 0 ? 0 : newY;
-
-        const width: number = canvasElement.width;
-        const height: number = canvasElement.height;
-
-        newX = newX > width ? width : newX;
-        newY = newX > height ? height : newY;
-
         const newDot: Dot = {
             x: newX,
             y: newY,
             radian: newRadian,
             speed: currentDot.speed
         }
-
-        // console.log("Degree", newRadian / Math.PI * 180);
 
         return newDot;
     }
@@ -155,39 +131,35 @@ const Index: FunctionComponent = () => {
                 const isOutOfBounds: boolean = isTopOutOfBounds || isLeftOutOfBounds || isBottomOutOfBounds || isRightOutOfBounds;
 
                 if (isOutOfBounds) {
-                    // console.log("width", width);
-                    // console.log("height", height);
-                    // console.log("out of bound");
-
                     if (isTopOutOfBounds) {
-                        const newDot: Dot = getReflexedDot(dot, 0);
+                        const newDot: Dot = getReflexedDot(dot, 2);
 
-                        context?.strokeRect(newDot.x, newDot.y, 3, 3);
+                        context?.strokeRect(newDot.x, newDot.y, 4, 4);
                         return newDot;
                     }
                     if (isLeftOutOfBounds) {
                         const newDot: Dot = getReflexedDot(dot, 1);
 
-                        context?.strokeRect(newDot.x, newDot.y, 3, 3);
+                        context?.strokeRect(newDot.x, newDot.y, 4, 4);
                         return newDot;
                     }
                     if (isBottomOutOfBounds) {
-                        const newDot: Dot = getReflexedDot(dot, 3);
+                        const newDot: Dot = getReflexedDot(dot, 0);
 
-                        context?.strokeRect(newDot.x, newDot.y, 3, 3);
+                        context?.strokeRect(newDot.x, newDot.y, 4, 4);
                         return newDot;
                     }
                     if (isRightOutOfBounds) {
                         const newDot: Dot = getReflexedDot(dot, 3);
 
-                        context?.strokeRect(newDot.x, newDot.y, 3, 3);
+                        context?.strokeRect(newDot.x, newDot.y, 4, 4);
                         return newDot;
                     }
                 }
 
                 const newDot: Dot = { x: newX, y: newY, radian: dot.radian, speed: dot.speed };
 
-                context?.strokeRect(newDot.x, newDot.y, 3, 3);
+                context?.strokeRect(newDot.x, newDot.y, 4, 4);
 
                 return newDot;
             });
