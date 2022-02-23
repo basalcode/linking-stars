@@ -5,6 +5,13 @@ export interface Dot {
     speed: number
 }
 
+enum QuadrantIndex {
+    First = 0,
+    Second,
+    Third,
+    Fourth
+}
+
 import { useEffect, useState } from 'react';
 
 const pointAmount: number = 50;
@@ -25,8 +32,15 @@ const getQuadrantMinRadian = (quadrantIndex: number): number => {
     return quadrantMaxRadian;
 }
 
-const getQuadrantDirection = (originalQuadrantIndex: number, boundIndex: number): number => {
-    return moveQuadrantIndex(originalQuadrantIndex, -1) === boundIndex ? 1 : -1;
+const getReflectedQuadrantIndex = (originalQuadrantIndex: number, boundaryIndex: number): number => {
+    const nextIndex: number = 1;
+    const previousIndex: number = -1;
+
+    const isForwardDirection = moveQuadrantIndex(originalQuadrantIndex, -1) === boundaryIndex;
+    const shiftingIndex: number = isForwardDirection ? nextIndex : previousIndex;
+
+    const reflectedQuadrantIndex: number = moveQuadrantIndex(originalQuadrantIndex, shiftingIndex);
+    return reflectedQuadrantIndex;
 }
 
 const quadrantAmount = 4;
@@ -40,68 +54,62 @@ const getOverflowedRadian = (radian: number) => {
 
 const getReflexedDot = (currentDot: Dot, boundaryIndex: number): Dot => {
     const originalQuadrantIndex: number = getQuadrantIndex(currentDot.radian);
-    const quadrantDirection: number = getQuadrantDirection(originalQuadrantIndex, boundaryIndex);
-    const newQuadrantIndex = moveQuadrantIndex(originalQuadrantIndex, quadrantDirection);
-    const newRadian = getQuadrantMinRadian(newQuadrantIndex) + ((Math.PI / 2) - getOverflowedRadian(currentDot.radian));
+    const reflectedQuadrantIndex = getReflectedQuadrantIndex(originalQuadrantIndex, boundaryIndex);
 
-    const newMoveX: number = Math.cos(newRadian) * currentDot.speed;
-    const newMoveY: number = Math.sin(newRadian) * currentDot.speed;
+    const reflectedRadian = getQuadrantMinRadian(reflectedQuadrantIndex) + ((Math.PI / 2) - getOverflowedRadian(currentDot.radian));
 
-    let newX: number = currentDot.x + newMoveX;
-    let newY: number = currentDot.y + newMoveY;
+    const reflectedX: number = Math.cos(reflectedRadian) * currentDot.speed;
+    const reflectedY: number = Math.sin(reflectedRadian) * currentDot.speed;
+
+    let newX: number = currentDot.x + reflectedX;
+    let newY: number = currentDot.y + reflectedY;
 
     const newDot: Dot = {
         x: newX,
         y: newY,
-        radian: newRadian,
+        radian: reflectedRadian,
         speed: currentDot.speed
     }
 
     return newDot;
 }
 
+const initializeDot = (width: number, height: number): Dot => {
+    const x: number = Math.floor(Math.random() * width);
+    const y: number = Math.floor(Math.random() * height);
+    const radian: number = Math.random() * (Math.PI * 2);
+    const speed: number = 1;
+
+    const dot: Dot = {
+        x: x,
+        y: y,
+        radian: radian,
+        speed: speed
+    }
+
+    return dot;
+}
+
+
 export const useIndex = () => {
     const [canvasElement, setCanvasElement] = useState<HTMLCanvasElement | null>(null);
-    const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
     const [dots, setDots] = useState<Array<Dot>>([]);
 
     useEffect(() => {
         if (!canvasElement) return;
-        const context = canvasElement.getContext('2d') as CanvasRenderingContext2D;
-
-        if (!canvasElement) return;
-        if (!context) return;
-
-        setContext(context);
-
         const width: number = canvasElement.width;
         const height: number = canvasElement.height;
 
         for (let i = 0; i < pointAmount; i++) {
-            const x: number = Math.floor(Math.random() * width);
-            const y: number = Math.floor(Math.random() * height);
-            const radian: number = Math.random() * (Math.PI * 2);
-            const speed: number = 1;
-
-            const dot: Dot = {
-                x: x,
-                y: y,
-                radian: radian,
-                speed: speed
-            }
+            const dot = initializeDot(width, height);
             dots.push(dot);
-
-            context?.strokeRect(x, y, 4, 4);
-        }
-
-        return () => {
-            context.clearRect(0, 0, width, height);
         }
     }, [canvasElement]);
 
     useEffect(() => {
         if (!canvasElement) return;
 
+        const context = canvasElement.getContext('2d') as CanvasRenderingContext2D;
         const rendererId = setTimeout(() => {
             const width: number = canvasElement.width;
             const height: number = canvasElement.height;
@@ -124,25 +132,25 @@ export const useIndex = () => {
 
                 if (isOutOfBounds) {
                     if (isTopOutOfBounds) {
-                        const newDot: Dot = getReflexedDot(dot, 2);
+                        const newDot: Dot = getReflexedDot(dot, QuadrantIndex.Third);
 
                         context?.strokeRect(newDot.x, newDot.y, 4, 4);
                         return newDot;
                     }
                     if (isLeftOutOfBounds) {
-                        const newDot: Dot = getReflexedDot(dot, 1);
+                        const newDot: Dot = getReflexedDot(dot, QuadrantIndex.Second);
 
                         context?.strokeRect(newDot.x, newDot.y, 4, 4);
                         return newDot;
                     }
                     if (isBottomOutOfBounds) {
-                        const newDot: Dot = getReflexedDot(dot, 0);
+                        const newDot: Dot = getReflexedDot(dot, QuadrantIndex.First);
 
                         context?.strokeRect(newDot.x, newDot.y, 4, 4);
                         return newDot;
                     }
                     if (isRightOutOfBounds) {
-                        const newDot: Dot = getReflexedDot(dot, 3);
+                        const newDot: Dot = getReflexedDot(dot, QuadrantIndex.Fourth);
 
                         context?.strokeRect(newDot.x, newDot.y, 4, 4);
                         return newDot;
