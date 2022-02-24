@@ -1,23 +1,32 @@
 export interface Dot {
     x: number,
     y: number,
+    width: number,
+    height: number,
     radian: number,
     speed: number
 }
 
-enum QuadrantIndex {
-    First = 0,
-    Second,
-    Third,
-    Fourth
+enum BoundaryIndex {
+    Bottom = 0,
+    Left,
+    Top,
+    Right
 }
 
-import { useEffect, useState } from 'react';
+interface ElementSize {
+    width: number,
+    height: number
+}
 
-const pointAmount: number = 50;
+import { useEffect, useMemo, useState } from 'react';
+
+const pointAmount: number = 2;
 const framePerSecond: number = 144;
 const secondUnit: number = 1000;
 const secondPerFrame: number = secondUnit / framePerSecond;
+const pointWidth: number = 20;
+const pointHeight: number = 20;
 
 const getQuadrantIndex = (radian: number): number => {
     const qudrantUnit: number = Math.PI / 2;
@@ -58,31 +67,33 @@ const getReflexedDot = (currentDot: Dot, boundaryIndex: number): Dot => {
 
     const reflectedRadian = getQuadrantMinRadian(reflectedQuadrantIndex) + ((Math.PI / 2) - getOverflowedRadian(currentDot.radian));
 
-    const reflectedX: number = Math.cos(reflectedRadian) * currentDot.speed;
-    const reflectedY: number = Math.sin(reflectedRadian) * currentDot.speed;
+    const reflectedMovementX: number = Math.cos(reflectedRadian) * currentDot.speed;
+    const reflectedMovementY: number = Math.sin(reflectedRadian) * currentDot.speed;
 
-    let newX: number = currentDot.x + reflectedX;
-    let newY: number = currentDot.y + reflectedY;
+    let reflectedX: number = currentDot.x + reflectedMovementX;
+    let reflectedY: number = currentDot.y + reflectedMovementY;
 
     const newDot: Dot = {
-        x: newX,
-        y: newY,
-        radian: reflectedRadian,
-        speed: currentDot.speed
+        ...currentDot,
+        x: reflectedX,
+        y: reflectedY,
+        radian: reflectedRadian
     }
 
     return newDot;
 }
 
-const initializeDot = (width: number, height: number): Dot => {
-    const x: number = Math.floor(Math.random() * width);
-    const y: number = Math.floor(Math.random() * height);
+const initializeDot = (canvasWidth: number, canvasHeight: number): Dot => {
+    const x: number = Math.floor(Math.random() * (canvasWidth - pointWidth));
+    const y: number = Math.floor(Math.random() * (canvasHeight - pointHeight));
     const radian: number = Math.random() * (Math.PI * 2);
     const speed: number = 1;
 
     const dot: Dot = {
         x: x,
         y: y,
+        width: pointWidth,
+        height: pointHeight,
         radian: radian,
         speed: speed
     }
@@ -90,15 +101,50 @@ const initializeDot = (width: number, height: number): Dot => {
     return dot;
 }
 
+const getOverflowBoundsIndex = (newDot: Dot, canvasElement: HTMLCanvasElement): number => {
+    const { x, y, width, height } = newDot;
+    const canvasWidth: number = canvasElement.width;
+    const canvasHeight: number = canvasElement.height;
+
+    const isTopOutOfBounds: boolean = y < 0;
+    if (isTopOutOfBounds) return BoundaryIndex.Top;
+
+    const isLeftOutOfBounds: boolean = x < 0;
+    if (isLeftOutOfBounds) return BoundaryIndex.Left
+
+    const isBottomOutOfBounds: boolean = y + height > canvasHeight;
+    if (isBottomOutOfBounds) return BoundaryIndex.Bottom
+
+    const isRightOutOfBounds: boolean = x + width > canvasWidth;
+    if (isRightOutOfBounds) return BoundaryIndex.Right
+
+    const isNotOverflowed = -1;
+    return isNotOverflowed;
+}
 
 export const useIndex = () => {
     const [canvasElement, setCanvasElement] = useState<HTMLCanvasElement | null>(null);
     const [dots, setDots] = useState<Array<Dot>>([]);
+    const { width, height } = useMemo<ElementSize>(() => {
+        if (!canvasElement) {
+            return {
+                width: 0,
+                height: 0
+            };
+        }
+
+        const width: number = canvasElement.width;
+        const height: number = canvasElement.height;
+
+        return {
+            width: width,
+            height: height
+        };
+    }, [canvasElement]);
+
 
     useEffect(() => {
         if (!canvasElement) return;
-        const width: number = canvasElement.width;
-        const height: number = canvasElement.height;
 
         for (let i = 0; i < pointAmount; i++) {
             const dot = initializeDot(width, height);
@@ -111,55 +157,29 @@ export const useIndex = () => {
 
         const context = canvasElement.getContext('2d') as CanvasRenderingContext2D;
         const rendererId = setTimeout(() => {
-            const width: number = canvasElement.width;
-            const height: number = canvasElement.height;
-
-            context?.clearRect(0, 0, width, height);
+            context.clearRect(0, 0, width, height);
 
             const newDots = dots.map((dot: Dot) => {
-                const moveX: number = Math.cos(dot.radian) * dot.speed;
-                const moveY: number = Math.sin(dot.radian) * dot.speed;
+                const movementX: number = Math.cos(dot.radian) * dot.speed;
+                const movementY: number = Math.sin(dot.radian) * dot.speed;
 
-                const newX: number = dot.x + moveX;
-                const newY: number = dot.y + moveY;
+                const newX: number = dot.x + movementX;
+                const newY: number = dot.y + movementY;
 
-                const isTopOutOfBounds: boolean = newY < 0;
-                const isLeftOutOfBounds: boolean = newX < 0;
-                const isBottomOutOfBounds: boolean = newY > height;
-                const isRightOutOfBounds: boolean = newX > width;
-
-                const isOutOfBounds: boolean = isTopOutOfBounds || isLeftOutOfBounds || isBottomOutOfBounds || isRightOutOfBounds;
-
-                if (isOutOfBounds) {
-                    if (isTopOutOfBounds) {
-                        const newDot: Dot = getReflexedDot(dot, QuadrantIndex.Third);
-
-                        context?.strokeRect(newDot.x, newDot.y, 4, 4);
-                        return newDot;
-                    }
-                    if (isLeftOutOfBounds) {
-                        const newDot: Dot = getReflexedDot(dot, QuadrantIndex.Second);
-
-                        context?.strokeRect(newDot.x, newDot.y, 4, 4);
-                        return newDot;
-                    }
-                    if (isBottomOutOfBounds) {
-                        const newDot: Dot = getReflexedDot(dot, QuadrantIndex.First);
-
-                        context?.strokeRect(newDot.x, newDot.y, 4, 4);
-                        return newDot;
-                    }
-                    if (isRightOutOfBounds) {
-                        const newDot: Dot = getReflexedDot(dot, QuadrantIndex.Fourth);
-
-                        context?.strokeRect(newDot.x, newDot.y, 4, 4);
-                        return newDot;
-                    }
+                let newDot: Dot = {
+                    ...dot,
+                    x: newX,
+                    y: newY
                 }
 
-                const newDot: Dot = { x: newX, y: newY, radian: dot.radian, speed: dot.speed };
+                const overflowedBoundIndex: number = getOverflowBoundsIndex(newDot, canvasElement);
+                const isOverflowed: boolean = overflowedBoundIndex !== -1;
 
-                context?.strokeRect(newDot.x, newDot.y, 4, 4);
+                if (isOverflowed) {
+                    newDot = getReflexedDot(dot, overflowedBoundIndex);
+                }
+
+                context.strokeRect(newDot.x, newDot.y, newDot.width, newDot.height);
 
                 return newDot;
             });
