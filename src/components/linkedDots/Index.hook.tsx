@@ -142,14 +142,16 @@ export const useIndex = () => {
         };
     }, [canvasElement]);
 
-
     useEffect(() => {
         if (!canvasElement) return;
 
-        for (let i = 0; i < pointAmount; i++) {
-            const dot = initializeDot(width, height);
-            dots.push(dot);
-        }
+        const initializer = Array<number>(pointAmount).fill(0);
+        const initializedDots = initializer.map((_) => {
+            const initializedDot = initializeDot(width, height);
+            return initializedDot;
+        });
+
+        setDots(initializedDots);
     }, [canvasElement]);
 
     useEffect(() => {
