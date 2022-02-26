@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+
 export interface Dot {
     x: number,
     y: number,
@@ -13,20 +15,6 @@ enum BoundaryIndex {
     Top,
     Right
 }
-
-interface ElementSize {
-    width: number,
-    height: number
-}
-
-import { useEffect, useMemo, useState } from 'react';
-
-const pointAmount: number = 2;
-const framePerSecond: number = 144;
-const secondUnit: number = 1000;
-const secondPerFrame: number = secondUnit / framePerSecond;
-const pointWidth: number = 20;
-const pointHeight: number = 20;
 
 const getQuadrantIndex = (radian: number): number => {
     const qudrantUnit: number = Math.PI / 2;
@@ -52,8 +40,9 @@ const getReflectedQuadrantIndex = (originalQuadrantIndex: number, boundaryIndex:
     return reflectedQuadrantIndex;
 }
 
-const quadrantAmount = 4;
 const moveQuadrantIndex = (currentQuadrantIndex: number, movement: number) => {
+    const quadrantAmount: number = 4;
+
     return (quadrantAmount + (currentQuadrantIndex + movement)) % quadrantAmount;
 }
 
@@ -83,7 +72,7 @@ const getReflexedDot = (currentDot: Dot, boundaryIndex: number): Dot => {
     return newDot;
 }
 
-const initializeDot = (canvasWidth: number, canvasHeight: number): Dot => {
+const initializeDot = (canvasWidth: number, canvasHeight: number, pointWidth: number, pointHeight: number): Dot => {
     const x: number = Math.floor(Math.random() * (canvasWidth - pointWidth));
     const y: number = Math.floor(Math.random() * (canvasHeight - pointHeight));
     const radian: number = Math.random() * (Math.PI * 2);
@@ -122,44 +111,31 @@ const getOverflowBoundsIndex = (newDot: Dot, canvasElement: HTMLCanvasElement): 
     return isNotOverflowed;
 }
 
-export const useIndex = () => {
-    const [canvasElement, setCanvasElement] = useState<HTMLCanvasElement | null>(null);
-    const [dots, setDots] = useState<Array<Dot>>([]);
-    const { width, height } = useMemo<ElementSize>(() => {
-        if (!canvasElement) {
-            return {
-                width: 0,
-                height: 0
-            };
+export const useLinkedDotAnimation = (pointAmount: number, pointWidth: number, pointHeight: number, framePerSecond: number) => {
+    const [canvasElement, setCanvasElement] = useState<HTMLCanvasElement | null>();
+    const [dots, setDots] = useState<Array<Dot> | null>(null);
+
+    useEffect(() => {
+        if (!canvasElement) return;
+
+        const canvasWidth: number = canvasElement.width;
+        const cavnasHeight: number = canvasElement.height;
+
+        if (!dots) {
+            const initializer = Array<number>(pointAmount).fill(0);
+            const initializedDots = initializer.map((_) => {
+                const initializedDot = initializeDot(canvasWidth, cavnasHeight, pointWidth, pointHeight);
+                return initializedDot;
+            });
+
+            return setDots(initializedDots);
         }
 
-        const width: number = canvasElement.width;
-        const height: number = canvasElement.height;
-
-        return {
-            width: width,
-            height: height
-        };
-    }, [canvasElement]);
-
-    useEffect(() => {
-        if (!canvasElement) return;
-
-        const initializer = Array<number>(pointAmount).fill(0);
-        const initializedDots = initializer.map((_) => {
-            const initializedDot = initializeDot(width, height);
-            return initializedDot;
-        });
-
-        setDots(initializedDots);
-    }, [canvasElement]);
-
-    useEffect(() => {
-        if (!canvasElement) return;
-
         const context = canvasElement.getContext('2d') as CanvasRenderingContext2D;
+        const secondUnit: number = 1000;
+        const secondPerFrame: number = secondUnit / framePerSecond;
         const rendererId = setTimeout(() => {
-            context.clearRect(0, 0, width, height);
+            context.clearRect(0, 0, canvasWidth, cavnasHeight);
 
             const newDots = dots.map((dot: Dot) => {
                 const movementX: number = Math.cos(dot.radian) * dot.speed;

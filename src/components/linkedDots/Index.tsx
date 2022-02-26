@@ -1,22 +1,24 @@
+/* packages */
 import { FunctionComponent } from 'react';
 
-import { useIndex } from './Index.hook';
-
+/* components */
 import Layout from 'components/common/Layout';
+import LinkedDotCanvas from './LinkedDotCanvas';
 
+/* style */
 import style from './Index.module.scss';
 
 const Index: FunctionComponent = () => {
-    const setCanvasElement = useIndex();
-
     return (
         <Layout>
-            <canvas
-                className={style.canvas}
-                width={500}
-                height={500}
-                ref={setCanvasElement}
-            ></canvas>
+            <LinkedDotCanvas
+                pointAmount={10}
+                canvasWidth={500}
+                cavnasHeight={500}
+                pointWidth={5}
+                pointHeight={5}
+                framePerSecond={144}
+            />
         </Layout>
     );
 }
