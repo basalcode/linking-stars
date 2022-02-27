@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 
+// interfaces
 export interface Dot {
+    id: number,
     x: number,
     y: number,
     width: number,
@@ -9,13 +11,25 @@ export interface Dot {
     speed: number
 }
 
-enum BoundaryIndex {
+interface Coordinate {
+    id: number,
+    coordinate: number
+}
+
+interface SortedDotPosition {
+    sortedXs: Array<Coordinate>,
+    sortedYs: Array<Coordinate>
+}
+
+// enums
+export enum BoundaryIndex {
     Bottom = 0,
     Left,
     Top,
     Right
 }
 
+// functions
 const getQuadrantIndex = (radian: number): number => {
     const qudrantUnit: number = Math.PI / 2;
     const quadrantIndex: number = Math.floor(radian / qudrantUnit);
@@ -72,13 +86,14 @@ const getReflexedDot = (currentDot: Dot, boundaryIndex: number): Dot => {
     return newDot;
 }
 
-const initializeDot = (canvasWidth: number, canvasHeight: number, pointWidth: number, pointHeight: number): Dot => {
+const initializeDot = (canvasWidth: number, canvasHeight: number, pointWidth: number, pointHeight: number, id: number): Dot => {
     const x: number = Math.floor(Math.random() * (canvasWidth - pointWidth));
     const y: number = Math.floor(Math.random() * (canvasHeight - pointHeight));
     const radian: number = Math.random() * (Math.PI * 2);
     const speed: number = 1;
 
     const dot: Dot = {
+        id: id,
         x: x,
         y: y,
         width: pointWidth,
@@ -88,6 +103,71 @@ const initializeDot = (canvasWidth: number, canvasHeight: number, pointWidth: nu
     }
 
     return dot;
+}
+
+const insertValue = (sortedArray: Array<Coordinate>, element: Coordinate): Array<Coordinate> => {
+    let startIndex: number = 0;
+    let finishIndex: number = sortedArray.length - 1;
+    let insertIndex: number = - 1;
+
+    const insertionCoodinate: number = element.coordinate;
+
+    while (true) {
+        const isReversedSequence = startIndex > finishIndex;
+        if (isReversedSequence) {
+            insertIndex = finishIndex;
+            break;
+        }
+
+        const range: number = finishIndex - startIndex;
+        const centerIndex: number = startIndex + range / 2;
+        const centerElement: Coordinate = sortedArray[centerIndex];
+        const centerCooridnate: number = centerElement.coordinate;
+
+        const isSearchDirectionForward: boolean = insertionCoodinate < centerCooridnate;
+        const isSearchDirectionBackward: boolean = insertionCoodinate < centerCooridnate;
+        const isSameAsCenterVlaue: boolean = insertionCoodinate === centerCooridnate;
+
+        if (isSameAsCenterVlaue) {
+            insertIndex = centerIndex;
+            break;
+        }
+
+        if (isSearchDirectionForward) {
+            finishIndex = centerIndex - 1
+            continue;
+        };
+        if (isSearchDirectionBackward) {
+            startIndex = centerIndex + 1;
+            continue;
+        }
+    }
+
+    const newSortedArray = sortedArray.slice();
+    newSortedArray.splice(insertIndex, 0, element);
+
+    return newSortedArray;
+}
+
+const getSortedDotCoordinate = (sortedDotCoordinate: SortedDotPosition, dot: Dot): SortedDotPosition => {
+    const dotId: number = dot.id;
+    const dotX: number = dot.x;
+    const dotY: number = dot.y;
+
+    const x: Coordinate = { id: dotId, coordinate: dotX }
+    const y: Coordinate = { id: dotId, coordinate: dotY }
+
+
+    const sortedXs: Array<Coordinate> = sortedDotCoordinate.sortedXs;
+    const sortedYs: Array<Coordinate> = sortedDotCoordinate.sortedYs;
+
+    const newSortedXs = insertValue(sortedXs, x);
+    const newSortedYs = insertValue(sortedYs, y);
+
+    return {
+        sortedXs: newSortedXs,
+        sortedYs: newSortedYs
+    }
 }
 
 const getOverflowBoundsIndex = (newDot: Dot, canvasElement: HTMLCanvasElement): number => {
@@ -114,6 +194,11 @@ const getOverflowBoundsIndex = (newDot: Dot, canvasElement: HTMLCanvasElement): 
 export const useLinkedDotAnimation = (pointAmount: number, pointWidth: number, pointHeight: number, framePerSecond: number) => {
     const [canvasElement, setCanvasElement] = useState<HTMLCanvasElement | null>();
     const [dots, setDots] = useState<Array<Dot> | null>(null);
+    const [sortedDotCoordinate, setSortedDotCoordinate] = useState<SortedDotPosition>({ sortedXs: [], sortedYs: [] });
+
+    useEffect(() => {
+        console.log("sortedDotCoordinate", sortedDotCoordinate);
+    }, [sortedDotCoordinate]);
 
     useEffect(() => {
         if (!canvasElement) return;
@@ -123,8 +208,11 @@ export const useLinkedDotAnimation = (pointAmount: number, pointWidth: number, p
 
         if (!dots) {
             const initializer = Array<number>(pointAmount).fill(0);
-            const initializedDots = initializer.map((_) => {
-                const initializedDot = initializeDot(canvasWidth, cavnasHeight, pointWidth, pointHeight);
+            const initializedDots = initializer.map((_, index) => {
+                const dotId = index;
+                const initializedDot = initializeDot(canvasWidth, cavnasHeight, pointWidth, pointHeight, dotId);
+                const newSortedDotCoordinate = getSortedDotCoordinate(sortedDotCoordinate, initializedDot);
+
                 return initializedDot;
             });
 
