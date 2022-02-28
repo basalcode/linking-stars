@@ -149,25 +149,30 @@ const insertValue = (sortedArray: Array<Coordinate>, element: Coordinate): Array
     return newSortedArray;
 }
 
-const getSortedDotCoordinate = (sortedDotCoordinate: SortedDotPosition, dot: Dot): SortedDotPosition => {
-    const dotId: number = dot.id;
-    const dotX: number = dot.x;
-    const dotY: number = dot.y;
+const getSortedCoordinates = (sortedCoordinates: Array<Coordinate>, id: number, coordinate: number): Array<Coordinate> => {
+    // const dotId: number = dot.id;
 
-    const x: Coordinate = { id: dotId, coordinate: dotX }
-    const y: Coordinate = { id: dotId, coordinate: dotY }
+    // const dotId: number = dot.id;
+    // const dotX: number = dot.x;
+    // const dotY: number = dot.y;
 
+    const coordinatesElement: Coordinate = { id: id, coordinate: coordinate };
 
-    const sortedXs: Array<Coordinate> = sortedDotCoordinate.sortedXs;
-    const sortedYs: Array<Coordinate> = sortedDotCoordinate.sortedYs;
+    insertValue(sortedCoordinates, coordinatesElement);
 
-    const newSortedXs = insertValue(sortedXs, x);
-    const newSortedYs = insertValue(sortedYs, y);
+    // const x: Coordinate = { id: dotId, coordinate: dotX }
+    // const y: Coordinate = { id: dotId, coordinate: dotY }
 
-    return {
-        sortedXs: newSortedXs,
-        sortedYs: newSortedYs
-    }
+    // const sortedXs: Array<Coordinate> = [...sortedDotCoordinate.sortedXs];
+    // const sortedYs: Array<Coordinate> = [...sortedDotCoordinate.sortedYs];
+
+    // const newSortedXs = insertValue(sortedXs, x);
+    // const newSortedYs = insertValue(sortedYs, y);
+
+    // return {
+    //     sortedXs: newSortedXs,
+    //     sortedYs: newSortedYs
+    // }
 }
 
 const getOverflowBoundsIndex = (newDot: Dot, canvasElement: HTMLCanvasElement): number => {
@@ -208,13 +213,19 @@ export const useLinkedDotAnimation = (pointAmount: number, pointWidth: number, p
 
         if (!dots) {
             const initializer = Array<number>(pointAmount).fill(0);
+
+            // let newSortedDotCoordinate = JSON.parse(JSON.stringify(sortedDotCoordinate));
+
             const initializedDots = initializer.map((_, index) => {
                 const dotId = index;
                 const initializedDot = initializeDot(canvasWidth, cavnasHeight, pointWidth, pointHeight, dotId);
-                const newSortedDotCoordinate = getSortedDotCoordinate(sortedDotCoordinate, initializedDot);
+
+                // newSortedDotCoordinate = getSortedDotCoordinate(newSortedDotCoordinate, initializedDot);
 
                 return initializedDot;
             });
+
+            setSortedDotCoordinate(newSortedDotCoordinate);
 
             return setDots(initializedDots);
         }
