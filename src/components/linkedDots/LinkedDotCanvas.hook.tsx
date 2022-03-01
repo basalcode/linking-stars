@@ -16,11 +16,6 @@ interface Coordinate {
     coordinate: number
 }
 
-interface SortedDotPosition {
-    sortedXs: Array<Coordinate>,
-    sortedYs: Array<Coordinate>
-}
-
 // enums
 export enum BoundaryIndex {
     Bottom = 0,
@@ -105,27 +100,25 @@ const initializeDot = (canvasWidth: number, canvasHeight: number, pointWidth: nu
     return dot;
 }
 
-const insertValue = (sortedArray: Array<Coordinate>, element: Coordinate): Array<Coordinate> => {
+const getInsertionIndex = (sortedDots: Array<Dot>, insertionCoodinate: number): number => {
     let startIndex: number = 0;
-    let finishIndex: number = sortedArray.length - 1;
+    let finishIndex: number = sortedDots.length - 1;
     let insertIndex: number = - 1;
-
-    const insertionCoodinate: number = element.coordinate;
 
     while (true) {
         const isReversedSequence = startIndex > finishIndex;
         if (isReversedSequence) {
-            insertIndex = finishIndex;
+            insertIndex = startIndex;
             break;
         }
 
         const range: number = finishIndex - startIndex;
-        const centerIndex: number = startIndex + range / 2;
-        const centerElement: Coordinate = sortedArray[centerIndex];
-        const centerCooridnate: number = centerElement.coordinate;
+        const centerIndex: number = Math.floor(startIndex + range / 2);
+        const centerElement: Dot = sortedDots[centerIndex];
+        const centerCooridnate: number = centerElement.x;
 
         const isSearchDirectionForward: boolean = insertionCoodinate < centerCooridnate;
-        const isSearchDirectionBackward: boolean = insertionCoodinate < centerCooridnate;
+        const isSearchDirectionBackward: boolean = insertionCoodinate > centerCooridnate;
         const isSameAsCenterVlaue: boolean = insertionCoodinate === centerCooridnate;
 
         if (isSameAsCenterVlaue) {
@@ -143,37 +136,19 @@ const insertValue = (sortedArray: Array<Coordinate>, element: Coordinate): Array
         }
     }
 
-    const newSortedArray = sortedArray.slice();
-    newSortedArray.splice(insertIndex, 0, element);
-
-    return newSortedArray;
+    return insertIndex;
 }
 
-const getSortedCoordinates = (sortedCoordinates: Array<Coordinate>, id: number, coordinate: number): Array<Coordinate> => {
-    // const dotId: number = dot.id;
+// const getSearchFilter = (searchFilter: Array<Coordinate>, id: number, coordinate: number): Array<Coordinate> => {
+//     const coordinatesElement: Coordinate = { id: id, coordinate: coordinate };
+//     const insertionIndex: number = getInsertionIndex(searchFilter, coordinatesElement);
 
-    // const dotId: number = dot.id;
-    // const dotX: number = dot.x;
-    // const dotY: number = dot.y;
+//     const newSearchFilter = [...searchFilter];
 
-    const coordinatesElement: Coordinate = { id: id, coordinate: coordinate };
+//     newSearchFilter.splice(insertionIndex, 0, coordinatesElement);
 
-    insertValue(sortedCoordinates, coordinatesElement);
-
-    // const x: Coordinate = { id: dotId, coordinate: dotX }
-    // const y: Coordinate = { id: dotId, coordinate: dotY }
-
-    // const sortedXs: Array<Coordinate> = [...sortedDotCoordinate.sortedXs];
-    // const sortedYs: Array<Coordinate> = [...sortedDotCoordinate.sortedYs];
-
-    // const newSortedXs = insertValue(sortedXs, x);
-    // const newSortedYs = insertValue(sortedYs, y);
-
-    // return {
-    //     sortedXs: newSortedXs,
-    //     sortedYs: newSortedYs
-    // }
-}
+//     return newSearchFilter;
+// }
 
 const getOverflowBoundsIndex = (newDot: Dot, canvasElement: HTMLCanvasElement): number => {
     const { x, y, width, height } = newDot;
@@ -196,14 +171,15 @@ const getOverflowBoundsIndex = (newDot: Dot, canvasElement: HTMLCanvasElement): 
     return isNotOverflowed;
 }
 
+const linkingRadius: number = 200;
+
+const getDistance = (x1: number, y1: number, x2: number, y2: number) => {
+    return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+}
+
 export const useLinkedDotAnimation = (pointAmount: number, pointWidth: number, pointHeight: number, framePerSecond: number) => {
     const [canvasElement, setCanvasElement] = useState<HTMLCanvasElement | null>();
     const [dots, setDots] = useState<Array<Dot> | null>(null);
-    const [sortedDotCoordinate, setSortedDotCoordinate] = useState<SortedDotPosition>({ sortedXs: [], sortedYs: [] });
-
-    useEffect(() => {
-        console.log("sortedDotCoordinate", sortedDotCoordinate);
-    }, [sortedDotCoordinate]);
 
     useEffect(() => {
         if (!canvasElement) return;
@@ -214,20 +190,17 @@ export const useLinkedDotAnimation = (pointAmount: number, pointWidth: number, p
         if (!dots) {
             const initializer = Array<number>(pointAmount).fill(0);
 
-            // let newSortedDotCoordinate = JSON.parse(JSON.stringify(sortedDotCoordinate));
-
             const initializedDots = initializer.map((_, index) => {
-                const dotId = index;
-                const initializedDot = initializeDot(canvasWidth, cavnasHeight, pointWidth, pointHeight, dotId);
-
-                // newSortedDotCoordinate = getSortedDotCoordinate(newSortedDotCoordinate, initializedDot);
+                const dotId: number = index;
+                const initializedDot: Dot = initializeDot(canvasWidth, cavnasHeight, pointWidth, pointHeight, dotId);
 
                 return initializedDot;
             });
 
-            setSortedDotCoordinate(newSortedDotCoordinate);
+            const sortedInitializedDots = initializedDots.sort((target: Dot, next: Dot) => { return target.x - next.x; });
 
-            return setDots(initializedDots);
+            setDots(sortedInitializedDots);
+            return;
         }
 
         const context = canvasElement.getContext('2d') as CanvasRenderingContext2D;
@@ -252,16 +225,40 @@ export const useLinkedDotAnimation = (pointAmount: number, pointWidth: number, p
                 const overflowedBoundIndex: number = getOverflowBoundsIndex(newDot, canvasElement);
                 const isOverflowed: boolean = overflowedBoundIndex !== -1;
 
-                if (isOverflowed) {
-                    newDot = getReflexedDot(dot, overflowedBoundIndex);
-                }
+                if (isOverflowed) newDot = getReflexedDot(dot, overflowedBoundIndex);
 
                 context.strokeRect(newDot.x, newDot.y, newDot.width, newDot.height);
 
                 return newDot;
             });
 
-            setDots(newDots);
+            const sortedNewDots = newDots.sort((target: Dot, next: Dot) => { return target.x - next.x });
+
+            sortedNewDots.map((standardDot: Dot, index: number) => {
+                const x: number = standardDot.x;
+                const y: number = standardDot.y;
+                const filterFinishX: number = x + linkingRadius > canvasWidth ? canvasWidth : x + linkingRadius;
+
+                const filteredFinishIndex: number = getInsertionIndex(sortedNewDots, filterFinishX);
+
+                for (let filteredIndex = index; filteredIndex < filteredFinishIndex; filteredIndex++) {
+                    const dotInsideFilter: Dot = sortedNewDots[filteredIndex];
+                    const filteredDotX: number = dotInsideFilter.x;
+                    const filteredDotY: number = dotInsideFilter.y;
+
+                    const distance = getDistance(x, y, filteredDotX, filteredDotY);
+                    const isInsideRange = distance <= linkingRadius;
+
+                    if (isInsideRange) {
+                        context.beginPath();
+                        context.moveTo(x, y);
+                        context.lineTo(filteredDotX, filteredDotY);
+                        context.stroke();
+                    }
+                }
+            });
+
+            setDots(sortedNewDots);
         }, secondPerFrame);
 
         return () => clearTimeout(rendererId);
