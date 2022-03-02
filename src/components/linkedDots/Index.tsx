@@ -12,9 +12,9 @@ const Index: FunctionComponent = () => {
     return (
         <Layout>
             <LinkedDotCanvas
-                pointAmount={20}
-                canvasWidth={500}
-                cavnasHeight={500}
+                pointAmount={50}
+                canvasWidth={740}
+                cavnasHeight={740}
                 pointWidth={5}
                 pointHeight={5}
                 framePerSecond={144}
