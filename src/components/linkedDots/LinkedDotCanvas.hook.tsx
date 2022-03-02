@@ -5,6 +5,8 @@ export interface Dot {
     id: number,
     x: number,
     y: number,
+    centerX: number,
+    centerY: number,
     width: number,
     height: number,
     radian: number,
@@ -68,13 +70,18 @@ const getReflexedDot = (currentDot: Dot, boundaryIndex: number): Dot => {
     const reflectedMovementX: number = Math.cos(reflectedRadian) * currentDot.speed;
     const reflectedMovementY: number = Math.sin(reflectedRadian) * currentDot.speed;
 
-    let reflectedX: number = currentDot.x + reflectedMovementX;
-    let reflectedY: number = currentDot.y + reflectedMovementY;
+    const reflectedX: number = currentDot.x + reflectedMovementX;
+    const reflectedY: number = currentDot.y + reflectedMovementY;
+
+    const reflectedCenterX: number = getCenterCoordinate(reflectedX, currentDot.width);
+    const reflectedCenterY: number = getCenterCoordinate(reflectedY, currentDot.height);
 
     const newDot: Dot = {
         ...currentDot,
         x: reflectedX,
         y: reflectedY,
+        centerX: reflectedCenterX,
+        centerY: reflectedCenterY,
         radian: reflectedRadian
     }
 
@@ -84,6 +91,8 @@ const getReflexedDot = (currentDot: Dot, boundaryIndex: number): Dot => {
 const initializeDot = (canvasWidth: number, canvasHeight: number, pointWidth: number, pointHeight: number, id: number): Dot => {
     const x: number = Math.floor(Math.random() * (canvasWidth - pointWidth));
     const y: number = Math.floor(Math.random() * (canvasHeight - pointHeight));
+    const centerX: number = getCenterCoordinate(x, pointWidth);
+    const centerY: number = getCenterCoordinate(y, pointHeight);
     const radian: number = Math.random() * (Math.PI * 2);
     const speed: number = 1;
 
@@ -91,6 +100,8 @@ const initializeDot = (canvasWidth: number, canvasHeight: number, pointWidth: nu
         id: id,
         x: x,
         y: y,
+        centerX: centerX,
+        centerY: centerY,
         width: pointWidth,
         height: pointHeight,
         radian: radian,
@@ -177,6 +188,10 @@ const getDistance = (x1: number, y1: number, x2: number, y2: number) => {
     return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
 }
 
+const getCenterCoordinate = (coordinate: number, size: number): number => {
+    return coordinate + (size / 2);
+}
+
 export const useLinkedDotAnimation = (pointAmount: number, pointWidth: number, pointHeight: number, framePerSecond: number) => {
     const [canvasElement, setCanvasElement] = useState<HTMLCanvasElement | null>();
     const [dots, setDots] = useState<Array<Dot> | null>(null);
@@ -197,7 +212,7 @@ export const useLinkedDotAnimation = (pointAmount: number, pointWidth: number, p
                 return initializedDot;
             });
 
-            const sortedInitializedDots = initializedDots.sort((target: Dot, next: Dot) => { return target.x - next.x; });
+            const sortedInitializedDots = initializedDots.sort((target: Dot, next: Dot) => { return target.centerX - next.centerY; });
 
             setDots(sortedInitializedDots);
             return;
@@ -215,11 +230,15 @@ export const useLinkedDotAnimation = (pointAmount: number, pointWidth: number, p
 
                 const newX: number = dot.x + movementX;
                 const newY: number = dot.y + movementY;
+                const centerX: number = getCenterCoordinate(newX, dot.width);
+                const centerY: number = getCenterCoordinate(newY, dot.height);
 
                 let newDot: Dot = {
                     ...dot,
                     x: newX,
-                    y: newY
+                    y: newY,
+                    centerX: centerX,
+                    centerY: centerY
                 }
 
                 const overflowedBoundIndex: number = getOverflowBoundsIndex(newDot, canvasElement);
@@ -232,27 +251,28 @@ export const useLinkedDotAnimation = (pointAmount: number, pointWidth: number, p
                 return newDot;
             });
 
-            const sortedNewDots = newDots.sort((target: Dot, next: Dot) => { return target.x - next.x });
+            const sortedNewDots = newDots.sort((target: Dot, next: Dot) => { return target.centerX - next.centerX });
 
             sortedNewDots.map((standardDot: Dot, index: number) => {
-                const x: number = standardDot.x;
-                const y: number = standardDot.y;
-                const filterFinishX: number = x + linkingRadius > canvasWidth ? canvasWidth : x + linkingRadius;
+                const centerX: number = standardDot.centerX;
+                const centerY: number = standardDot.centerY;
+
+                const filterFinishX: number = (centerX + linkingRadius) > canvasWidth ? canvasWidth : (centerX + linkingRadius);
 
                 const filteredFinishIndex: number = getInsertionIndex(sortedNewDots, filterFinishX);
 
                 for (let filteredIndex = index; filteredIndex < filteredFinishIndex; filteredIndex++) {
                     const dotInsideFilter: Dot = sortedNewDots[filteredIndex];
-                    const filteredDotX: number = dotInsideFilter.x;
-                    const filteredDotY: number = dotInsideFilter.y;
+                    const filteredDotCenterX: number = dotInsideFilter.centerX;
+                    const filteredDotCenterY: number = dotInsideFilter.centerY;
 
-                    const distance = getDistance(x, y, filteredDotX, filteredDotY);
+                    const distance = getDistance(centerX, centerY, filteredDotCenterX, filteredDotCenterY);
                     const isInsideRange = distance <= linkingRadius;
 
                     if (isInsideRange) {
                         context.beginPath();
-                        context.moveTo(x, y);
-                        context.lineTo(filteredDotX, filteredDotY);
+                        context.moveTo(centerX, centerY);
+                        context.lineTo(filteredDotCenterX, filteredDotCenterY);
                         context.stroke();
                     }
                 }
