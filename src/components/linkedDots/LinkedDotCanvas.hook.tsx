@@ -13,11 +13,6 @@ export interface Dot {
     speed: number
 }
 
-interface Coordinate {
-    id: number,
-    coordinate: number
-}
-
 // enums
 export enum BoundaryIndex {
     Bottom = 0,
@@ -51,13 +46,13 @@ const getReflectedQuadrantIndex = (originalQuadrantIndex: number, boundaryIndex:
     return reflectedQuadrantIndex;
 }
 
-const moveQuadrantIndex = (currentQuadrantIndex: number, movement: number) => {
+const moveQuadrantIndex = (currentQuadrantIndex: number, movement: number): number => {
     const quadrantAmount: number = 4;
 
     return (quadrantAmount + (currentQuadrantIndex + movement)) % quadrantAmount;
 }
 
-const getOverflowedRadian = (radian: number) => {
+const getOverflowedRadian = (radian: number): number => {
     return radian % (Math.PI / 2);
 }
 
@@ -117,7 +112,7 @@ const getInsertionIndex = (sortedDots: Array<Dot>, insertionCoodinate: number): 
     let insertIndex: number = - 1;
 
     while (true) {
-        const isReversedSequence = startIndex > finishIndex;
+        const isReversedSequence: boolean = startIndex > finishIndex;
         if (isReversedSequence) {
             insertIndex = startIndex;
             break;
@@ -150,19 +145,8 @@ const getInsertionIndex = (sortedDots: Array<Dot>, insertionCoodinate: number): 
     return insertIndex;
 }
 
-// const getSearchFilter = (searchFilter: Array<Coordinate>, id: number, coordinate: number): Array<Coordinate> => {
-//     const coordinatesElement: Coordinate = { id: id, coordinate: coordinate };
-//     const insertionIndex: number = getInsertionIndex(searchFilter, coordinatesElement);
-
-//     const newSearchFilter = [...searchFilter];
-
-//     newSearchFilter.splice(insertionIndex, 0, coordinatesElement);
-
-//     return newSearchFilter;
-// }
-
 const getOverflowBoundsIndex = (newDot: Dot, canvasElement: HTMLCanvasElement): number => {
-    const { x, y, width, height } = newDot;
+    const { x, y, width, height }: Dot = newDot;
     const canvasWidth: number = canvasElement.width;
     const canvasHeight: number = canvasElement.height;
 
@@ -205,14 +189,14 @@ export const useLinkedDotAnimation = (pointAmount: number, pointWidth: number, p
         if (!dots) {
             const initializer = Array<number>(pointAmount).fill(0);
 
-            const initializedDots = initializer.map((_, index) => {
+            const initializedDots: Array<Dot> = initializer.map((_, index): Dot => {
                 const dotId: number = index;
                 const initializedDot: Dot = initializeDot(canvasWidth, cavnasHeight, pointWidth, pointHeight, dotId);
 
                 return initializedDot;
             });
 
-            const sortedInitializedDots = initializedDots.sort((target: Dot, next: Dot) => { return target.centerX - next.centerY; });
+            const sortedInitializedDots: Array<Dot> = initializedDots.sort((target: Dot, next: Dot): number => { return target.centerX - next.centerY; });
 
             setDots(sortedInitializedDots);
             return;
@@ -251,9 +235,9 @@ export const useLinkedDotAnimation = (pointAmount: number, pointWidth: number, p
                 return newDot;
             });
 
-            const sortedNewDots = newDots.sort((target: Dot, next: Dot) => { return target.centerX - next.centerX });
+            const sortedNewDots: Array<Dot> = newDots.sort((target: Dot, next: Dot): number => { return target.centerX - next.centerX });
 
-            sortedNewDots.map((standardDot: Dot, index: number) => {
+            sortedNewDots.forEach((standardDot: Dot, index: number): void => {
                 const centerX: number = standardDot.centerX;
                 const centerY: number = standardDot.centerY;
 
@@ -266,8 +250,8 @@ export const useLinkedDotAnimation = (pointAmount: number, pointWidth: number, p
                     const filteredDotCenterX: number = dotInsideFilter.centerX;
                     const filteredDotCenterY: number = dotInsideFilter.centerY;
 
-                    const distance = getDistance(centerX, centerY, filteredDotCenterX, filteredDotCenterY);
-                    const isInsideRange = distance <= linkingRadius;
+                    const distance: number = getDistance(centerX, centerY, filteredDotCenterX, filteredDotCenterY);
+                    const isInsideRange: boolean = distance <= linkingRadius;
 
                     if (isInsideRange) {
                         context.beginPath();
