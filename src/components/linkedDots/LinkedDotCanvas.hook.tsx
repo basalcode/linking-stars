@@ -1,3 +1,4 @@
+/* packages */
 import { useEffect, useState } from 'react';
 
 // interfaces
@@ -166,8 +167,6 @@ const getOverflowBoundsIndex = (newDot: Dot, canvasElement: HTMLCanvasElement): 
     return isNotOverflowed;
 }
 
-const linkingRadius: number = 150;
-
 const getDistance = (x1: number, y1: number, x2: number, y2: number) => {
     return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
 }
@@ -176,7 +175,7 @@ const getCenterCoordinate = (coordinate: number, size: number): number => {
     return coordinate + (size / 2);
 }
 
-export const useLinkedDotAnimation = (pointAmount: number, pointWidth: number, pointHeight: number, framePerSecond: number) => {
+export const useLinkedDotAnimation = (pointAmount: number, pointWidth: number, pointHeight: number, linkingRadius: number, framePerSecond: number) => {
     const [canvasElement, setCanvasElement] = useState<HTMLCanvasElement | null>();
     const [dots, setDots] = useState<Array<Dot> | null>(null);
 
@@ -230,6 +229,7 @@ export const useLinkedDotAnimation = (pointAmount: number, pointWidth: number, p
 
                 if (isOverflowed) newDot = getReflexedDot(dot, overflowedBoundIndex);
 
+                context.strokeStyle = `rgb(0, 0, 0)`;
                 context.strokeRect(newDot.x, newDot.y, newDot.width, newDot.height);
 
                 return newDot;
@@ -254,6 +254,10 @@ export const useLinkedDotAnimation = (pointAmount: number, pointWidth: number, p
                     const isInsideRange: boolean = distance <= linkingRadius;
 
                     if (isInsideRange) {
+                        const maximumOpacity: number = 0.8;
+                        const opacity: number = maximumOpacity - (distance / linkingRadius);
+                        context.strokeStyle = `rgba(0, 0, 0, ${opacity})`;
+
                         context.beginPath();
                         context.moveTo(centerX, centerY);
                         context.lineTo(filteredDotCenterX, filteredDotCenterY);
