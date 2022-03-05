@@ -9,11 +9,12 @@ import style from './LinkedDotCanvas.module.scss';
 
 /* intefaces */
 interface LinkedDotCanvasProps {
-    dotAmount: number,
-    canvasSize?: CanvasSize,
+    canvasSize: CanvasSize,
+    dotAmount?: number,
     dotSize?: DotSize,
     linkingRadius?: number,
     framePerSecond?: number,
+    speedPerSecond?: number,
     canvasColor?: string,
     dotColor?: string,
     lineColor?: string
@@ -30,16 +31,18 @@ export interface DotSize {
 }
 
 const LinkedDotCanvas = ({
-    dotAmount,
-    canvasSize = { width: 500, height: 500 },
+    canvasSize,
+    dotAmount = 50,
     dotSize = { width: 1, height: 1 },
     linkingRadius = 200,
     framePerSecond = 144,
+    speedPerSecond = 100,
     canvasColor = 'black',
     dotColor = 'white',
     lineColor = 'white'
 }: LinkedDotCanvasProps) => {
-    const [canvasElement, setCanvasElement] = useState<HTMLCanvasElement | null>();
+    const [canvasElement, setCanvasElement] = useState<HTMLCanvasElement | null>(null);
+
     const context = useMemo(() => {
         if (!canvasElement) return null;
 
@@ -48,16 +51,7 @@ const LinkedDotCanvas = ({
         return context;
     }, [canvasElement]);
 
-    useEffect(() => {
-        if (!canvasElement) return;
-        console.log("canvasSize", canvasSize);
-
-
-        canvasElement.style.width = `${canvasSize.width}`;
-        canvasElement.style.height = `${canvasSize.height}`;
-    }, [canvasElement, canvasSize]);
-
-    useLinkedDotAnimation(context, dotAmount, canvasSize, dotSize, linkingRadius, framePerSecond, dotColor, lineColor);
+    useLinkedDotAnimation(context, dotAmount, canvasSize, dotSize, linkingRadius, framePerSecond, speedPerSecond, dotColor, lineColor);
 
     return (
         <canvas

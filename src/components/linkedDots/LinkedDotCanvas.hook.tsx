@@ -9,12 +9,15 @@ export interface Dot {
     id: number,
     x: number,
     y: number,
-    centerX: number,
-    centerY: number,
     width: number,
     height: number,
     radian: number,
-    speed: number
+    speedPerFrame: number
+}
+
+export interface Position {
+    x: number,
+    y: number
 }
 
 // enums
@@ -45,8 +48,8 @@ const getReflectedQuadrantIndex = (originalQuadrantIndex: number, boundaryIndex:
 
     const isForwardDirection = moveQuadrantIndex(originalQuadrantIndex, -1) === boundaryIndex;
     const shiftingIndex: number = isForwardDirection ? nextIndex : previousIndex;
-
     const reflectedQuadrantIndex: number = moveQuadrantIndex(originalQuadrantIndex, shiftingIndex);
+
     return reflectedQuadrantIndex;
 }
 
@@ -60,51 +63,43 @@ const getOverflowedRadian = (radian: number): number => {
     return radian % (Math.PI / 2);
 }
 
-const getReflexedDot = (currentDot: Dot, boundaryIndex: number): Dot => {
+const getReflexedDot = (currentDot: Dot, reflectionChecker: ReflectionChecker): Dot => {
+    const { reflectedX, reflectedY, boundaryIndex } = reflectionChecker;
+
     const originalQuadrantIndex: number = getQuadrantIndex(currentDot.radian);
     const reflectedQuadrantIndex = getReflectedQuadrantIndex(originalQuadrantIndex, boundaryIndex);
 
     const reflectedRadian = getQuadrantMinRadian(reflectedQuadrantIndex) + ((Math.PI / 2) - getOverflowedRadian(currentDot.radian));
 
-    const reflectedMovementX: number = Math.cos(reflectedRadian) * currentDot.speed;
-    const reflectedMovementY: number = Math.sin(reflectedRadian) * currentDot.speed;
+    const isXReflected: boolean = reflectedX > 0;
+    const isYReflected: boolean = reflectedY > 0;
 
-    const reflectedX: number = currentDot.x + reflectedMovementX;
-    const reflectedY: number = currentDot.y + reflectedMovementY;
-
-    const reflectedCenterX: number = getCenterCoordinate(reflectedX, currentDot.width);
-    const reflectedCenterY: number = getCenterCoordinate(reflectedY, currentDot.height);
+    const newX: number = isXReflected ? reflectedX : currentDot.x;
+    const newY: number = isYReflected ? reflectedY : currentDot.y;
 
     const newDot: Dot = {
         ...currentDot,
-        x: reflectedX,
-        y: reflectedY,
-        centerX: reflectedCenterX,
-        centerY: reflectedCenterY,
+        x: newX,
+        y: newY,
         radian: reflectedRadian
     }
 
     return newDot;
 }
 
-const initializeDot = (canvasWidth: number, canvasHeight: number, pointWidth: number, pointHeight: number, id: number): Dot => {
+const initializeDot = (canvasWidth: number, canvasHeight: number, pointWidth: number, pointHeight: number, id: number, speedPerFrame: number): Dot => {
     const x: number = Math.floor(Math.random() * (canvasWidth - pointWidth));
     const y: number = Math.floor(Math.random() * (canvasHeight - pointHeight));
-    const centerX: number = getCenterCoordinate(x, pointWidth);
-    const centerY: number = getCenterCoordinate(y, pointHeight);
     const radian: number = Math.random() * (Math.PI * 2);
-    const speed: number = 1;
 
     const dot: Dot = {
         id: id,
         x: x,
         y: y,
-        centerX: centerX,
-        centerY: centerY,
         width: pointWidth,
         height: pointHeight,
         radian: radian,
-        speed: speed
+        speedPerFrame: speedPerFrame
     }
 
     return dot;
@@ -149,25 +144,70 @@ const getInsertionIndex = (sortedDots: Array<Dot>, insertionCoodinate: number): 
     return insertIndex;
 }
 
-const getOverflowBoundsIndex = (newDot: Dot, canvasSize: CanvasSize): number => {
+interface ReflectionChecker {
+    reflectedX: number,
+    reflectedY: number,
+    boundaryIndex: number
+}
+
+const getReflectionChecker = (newDot: Dot, canvasSize: CanvasSize): ReflectionChecker => {
     const { x, y, width, height }: Dot = newDot;
     const canvasWidth: number = canvasSize.width;
     const canvasHeight: number = canvasSize.height;
 
+    const overflowValidator: ReflectionChecker = {
+        reflectedX: 0,
+        reflectedY: 0,
+        boundaryIndex: -1
+    }
+
     const isTopOutOfBounds: boolean = y < 0;
-    if (isTopOutOfBounds) return BoundaryIndex.Top;
+    if (isTopOutOfBounds) {
+        return {
+            ...overflowValidator,
+            reflectedY: -y,
+            boundaryIndex: BoundaryIndex.Top
+        };
+    }
 
     const isLeftOutOfBounds: boolean = x < 0;
-    if (isLeftOutOfBounds) return BoundaryIndex.Left
+    if (isLeftOutOfBounds) {
+        return {
+            ...overflowValidator,
+            reflectedX: -x,
+            boundaryIndex: BoundaryIndex.Left
+        };
+    }
 
-    const isBottomOutOfBounds: boolean = y + height > canvasHeight;
-    if (isBottomOutOfBounds) return BoundaryIndex.Bottom
+    const dotBottomY: number = y + height;
+    const isBottomOutOfBounds: boolean = dotBottomY > canvasHeight;
+    if (isBottomOutOfBounds) {
+        const overflowedY: number = dotBottomY - canvasHeight;
 
-    const isRightOutOfBounds: boolean = x + width > canvasWidth;
-    if (isRightOutOfBounds) return BoundaryIndex.Right
+        return {
+            ...overflowValidator,
+            reflectedY: Math.floor(canvasHeight - overflowedY),
+            boundaryIndex: BoundaryIndex.Bottom
+        };
+    }
 
-    const isNotOverflowed = -1;
-    return isNotOverflowed;
+    const dotRightX: number = x + width;
+    const isRightOutOfBounds: boolean = dotRightX > canvasWidth;
+    if (isRightOutOfBounds) {
+        const overflowedX: number = dotRightX - canvasWidth;
+
+        return {
+            ...overflowValidator,
+            reflectedX: Math.floor(canvasWidth - overflowedX),
+            boundaryIndex: BoundaryIndex.Right
+        };
+    }
+
+    const isNotOverflowed: number = -1;
+    return {
+        ...overflowValidator,
+        boundaryIndex: isNotOverflowed
+    };
 }
 
 const getDistance = (x1: number, y1: number, x2: number, y2: number) => {
@@ -178,98 +218,116 @@ const getCenterCoordinate = (coordinate: number, size: number): number => {
     return coordinate + (size / 2);
 }
 
-export const useLinkedDotAnimation = (context: CanvasRenderingContext2D | null, dotAmount: number, canvasSize: CanvasSize, dotSize: DotSize, linkingRadius: number, framePerSecond: number, dotColor: string, lineColor: string) => {
+const drawFrame = (context: CanvasRenderingContext2D, dots: Array<Dot>, canvasSize: CanvasSize, linkingRadius: number): Array<Dot> => {
+    const canvasWidth: number = canvasSize.width;
+    const cavnasHeight: number = canvasSize.height;
+
+    context.clearRect(0, 0, canvasWidth, cavnasHeight);
+
+    const newDots = dots.map((dot: Dot) => {
+        const movementX: number = Math.cos(dot.radian) * dot.speedPerFrame;
+        const movementY: number = Math.sin(dot.radian) * dot.speedPerFrame;
+
+        const newX: number = dot.x + movementX;
+        const newY: number = dot.y + movementY;
+
+        let newDot: Dot = {
+            ...dot,
+            x: newX,
+            y: newY,
+        }
+
+        const reflectionChecker: ReflectionChecker = getReflectionChecker(newDot, canvasSize);
+        const isOverflowed: boolean = reflectionChecker.boundaryIndex !== -1;
+
+        if (isOverflowed) newDot = getReflexedDot(newDot, reflectionChecker);
+
+        context.strokeStyle = `rgb(255, 255, 255)`;
+        context.strokeRect(newDot.x, newDot.y, newDot.width, newDot.height);
+
+        return newDot;
+    });
+
+    const sortedNewDots: Array<Dot> = newDots.sort((target: Dot, next: Dot): number => { return target.x - next.x });
+
+    sortedNewDots.forEach((standardDot: Dot, index: number): void => {
+        const x: number = standardDot.x;
+        const y: number = standardDot.y;
+        const width: number = standardDot.width;
+        const height: number = standardDot.height;
+
+        const centerX: number = getCenterCoordinate(x, width);
+        const centerY: number = getCenterCoordinate(y, height);
+
+        const filterFinishX: number = (centerX + linkingRadius) > canvasWidth ? canvasWidth : (centerX + linkingRadius);
+
+        const filteredFinishIndex: number = getInsertionIndex(sortedNewDots, filterFinishX);
+
+        for (let filteredIndex = index; filteredIndex < filteredFinishIndex; filteredIndex++) {
+            const dotInsideFilter: Dot = sortedNewDots[filteredIndex];
+            const dotInsideFilterX: number = dotInsideFilter.x;
+            const dotInsideFilterY: number = dotInsideFilter.y;
+            const dotInsideFilterWidth: number = dotInsideFilter.width;
+            const dotInsideFilterHeight: number = dotInsideFilter.height;
+
+            const filteredDotCenterX: number = getCenterCoordinate(dotInsideFilterX, dotInsideFilterWidth);
+            const filteredDotCenterY: number = getCenterCoordinate(dotInsideFilterY, dotInsideFilterHeight);
+
+            const distance: number = getDistance(centerX, centerY, filteredDotCenterX, filteredDotCenterY);
+            const isInsideRange: boolean = distance <= linkingRadius;
+
+            if (isInsideRange) {
+                const maximumOpacity: number = 0.8;
+                const opacity: number = maximumOpacity - (distance / linkingRadius);
+                context.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
+
+                context.beginPath();
+                context.moveTo(centerX, centerY);
+                context.lineTo(filteredDotCenterX, filteredDotCenterY);
+                context.stroke();
+            }
+        }
+    });
+
+    return sortedNewDots;
+}
+
+export const useLinkedDotAnimation = (context: CanvasRenderingContext2D | null, dotAmount: number, canvasSize: CanvasSize | undefined, dotSize: DotSize, linkingRadius: number, framePerSecond: number, speedPerSecond: number, dotColor: string, lineColor: string) => {
     const [dots, setDots] = useState<Array<Dot> | null>(null);
 
     useEffect(() => {
         if (!context) return;
+        if (!canvasSize) return;
 
-        const canvasWidth: number = canvasSize.width;
-        const cavnasHeight: number = canvasSize.height;
-        const dotWidth: number = dotSize.width;
-        const dotHeight: number = dotSize.height;
+        const secondUnit: number = 1000;
+        const secondPerFrame: number = secondUnit / framePerSecond;
+        const speedPerFrame: number = speedPerSecond / framePerSecond;
 
         if (!dots) {
             const initializer = Array<number>(dotAmount).fill(0);
 
             const initializedDots: Array<Dot> = initializer.map((_, index): Dot => {
+                const canvasWidth: number = canvasSize.width;
+                const cavnasHeight: number = canvasSize.height;
+                const dotWidth: number = dotSize.width;
+                const dotHeight: number = dotSize.height;
+
                 const dotId: number = index;
-                const initializedDot: Dot = initializeDot(canvasWidth, cavnasHeight, dotWidth, dotHeight, dotId);
+                const initializedDot: Dot = initializeDot(canvasWidth, cavnasHeight, dotWidth, dotHeight, dotId, speedPerFrame);
 
                 return initializedDot;
             });
 
-            const sortedInitializedDots: Array<Dot> = initializedDots.sort((target: Dot, next: Dot): number => { return target.centerX - next.centerY; });
+            const sortedInitializedDots: Array<Dot> = initializedDots.sort((target: Dot, next: Dot): number => { return target.x - next.x; });
 
             setDots(sortedInitializedDots);
             return;
         }
 
-        const secondUnit: number = 1000;
-        const secondPerFrame: number = secondUnit / framePerSecond;
         const rendererId = setTimeout(() => {
-            context.clearRect(0, 0, canvasWidth, cavnasHeight);
+            const newDots: Array<Dot> = drawFrame(context, dots, canvasSize, linkingRadius);
 
-            const newDots = dots.map((dot: Dot) => {
-                const movementX: number = Math.cos(dot.radian) * dot.speed;
-                const movementY: number = Math.sin(dot.radian) * dot.speed;
-
-                const newX: number = dot.x + movementX;
-                const newY: number = dot.y + movementY;
-                const centerX: number = getCenterCoordinate(newX, dot.width);
-                const centerY: number = getCenterCoordinate(newY, dot.height);
-
-                let newDot: Dot = {
-                    ...dot,
-                    x: newX,
-                    y: newY,
-                    centerX: centerX,
-                    centerY: centerY
-                }
-
-                const overflowedBoundIndex: number = getOverflowBoundsIndex(newDot, canvasSize);
-                const isOverflowed: boolean = overflowedBoundIndex !== -1;
-
-                if (isOverflowed) newDot = getReflexedDot(dot, overflowedBoundIndex);
-
-                context.strokeStyle = `rgb(255, 255, 255)`;
-                context.strokeRect(newDot.x, newDot.y, newDot.width, newDot.height);
-
-                return newDot;
-            });
-
-            const sortedNewDots: Array<Dot> = newDots.sort((target: Dot, next: Dot): number => { return target.centerX - next.centerX });
-
-            sortedNewDots.forEach((standardDot: Dot, index: number): void => {
-                const centerX: number = standardDot.centerX;
-                const centerY: number = standardDot.centerY;
-
-                const filterFinishX: number = (centerX + linkingRadius) > canvasWidth ? canvasWidth : (centerX + linkingRadius);
-
-                const filteredFinishIndex: number = getInsertionIndex(sortedNewDots, filterFinishX);
-
-                for (let filteredIndex = index; filteredIndex < filteredFinishIndex; filteredIndex++) {
-                    const dotInsideFilter: Dot = sortedNewDots[filteredIndex];
-                    const filteredDotCenterX: number = dotInsideFilter.centerX;
-                    const filteredDotCenterY: number = dotInsideFilter.centerY;
-
-                    const distance: number = getDistance(centerX, centerY, filteredDotCenterX, filteredDotCenterY);
-                    const isInsideRange: boolean = distance <= linkingRadius;
-
-                    if (isInsideRange) {
-                        const maximumOpacity: number = 0.8;
-                        const opacity: number = maximumOpacity - (distance / linkingRadius);
-                        context.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
-
-                        context.beginPath();
-                        context.moveTo(centerX, centerY);
-                        context.lineTo(filteredDotCenterX, filteredDotCenterY);
-                        context.stroke();
-                    }
-                }
-            });
-
-            setDots(sortedNewDots);
+            setDots(newDots);
         }, secondPerFrame);
 
         return () => clearTimeout(rendererId);

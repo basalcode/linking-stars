@@ -12,18 +12,30 @@ import LinkedDotCanvas from './LinkedDotCanvas';
 import style from './Index.module.scss';
 
 const Index: FunctionComponent = () => {
-    const [canvasSize, setCanavsSize] = useState<CanvasSize>({ width: 500, height: 500 });
+    const [canvasSize, setCanvasSize] = useState<CanvasSize>({ width: 0, height: 0 });
+
+    useEffect(() => {
+        setCanvasSize({
+            width: window.innerWidth,
+            height: window.innerHeight
+        });
+
+        const onResize = () => {
+            setCanvasSize({
+                width: window.innerWidth,
+                height: window.innerHeight
+            });
+        }
+
+        window.addEventListener('resize', onResize);
+
+        return () => window.removeEventListener('resize', onResize);
+    }, []);
 
     return (
         <LinkedDotCanvas
-            dotAmount={50}
             canvasSize={canvasSize}
-            dotSize={{
-                width: 3,
-                height: 3
-            }}
-            linkingRadius={200}
-            framePerSecond={144}
+            dotAmount={2}
         />
     );
 }
