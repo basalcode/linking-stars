@@ -1,6 +1,9 @@
 /* packages */
 import { useEffect, useState } from 'react';
 
+/* types */
+import { CanvasSize, DotSize } from './LinkedDotCanvas';
+
 // interfaces
 export interface Dot {
     id: number,
@@ -134,7 +137,7 @@ const getInsertionIndex = (sortedDots: Array<Dot>, insertionCoodinate: number): 
         }
 
         if (isSearchDirectionForward) {
-            finishIndex = centerIndex - 1
+            finishIndex = centerIndex - 1;
             continue;
         };
         if (isSearchDirectionBackward) {
@@ -146,10 +149,10 @@ const getInsertionIndex = (sortedDots: Array<Dot>, insertionCoodinate: number): 
     return insertIndex;
 }
 
-const getOverflowBoundsIndex = (newDot: Dot, canvasElement: HTMLCanvasElement): number => {
+const getOverflowBoundsIndex = (newDot: Dot, canvasSize: CanvasSize): number => {
     const { x, y, width, height }: Dot = newDot;
-    const canvasWidth: number = canvasElement.width;
-    const canvasHeight: number = canvasElement.height;
+    const canvasWidth: number = canvasSize.width;
+    const canvasHeight: number = canvasSize.height;
 
     const isTopOutOfBounds: boolean = y < 0;
     if (isTopOutOfBounds) return BoundaryIndex.Top;
@@ -175,22 +178,23 @@ const getCenterCoordinate = (coordinate: number, size: number): number => {
     return coordinate + (size / 2);
 }
 
-export const useLinkedDotAnimation = (pointAmount: number, pointWidth: number, pointHeight: number, linkingRadius: number, framePerSecond: number) => {
-    const [canvasElement, setCanvasElement] = useState<HTMLCanvasElement | null>();
+export const useLinkedDotAnimation = (context: CanvasRenderingContext2D | null, dotAmount: number, canvasSize: CanvasSize, dotSize: DotSize, linkingRadius: number, framePerSecond: number, dotColor: string, lineColor: string) => {
     const [dots, setDots] = useState<Array<Dot> | null>(null);
 
     useEffect(() => {
-        if (!canvasElement) return;
+        if (!context) return;
 
-        const canvasWidth: number = canvasElement.width;
-        const cavnasHeight: number = canvasElement.height;
+        const canvasWidth: number = canvasSize.width;
+        const cavnasHeight: number = canvasSize.height;
+        const dotWidth: number = dotSize.width;
+        const dotHeight: number = dotSize.height;
 
         if (!dots) {
-            const initializer = Array<number>(pointAmount).fill(0);
+            const initializer = Array<number>(dotAmount).fill(0);
 
             const initializedDots: Array<Dot> = initializer.map((_, index): Dot => {
                 const dotId: number = index;
-                const initializedDot: Dot = initializeDot(canvasWidth, cavnasHeight, pointWidth, pointHeight, dotId);
+                const initializedDot: Dot = initializeDot(canvasWidth, cavnasHeight, dotWidth, dotHeight, dotId);
 
                 return initializedDot;
             });
@@ -201,7 +205,6 @@ export const useLinkedDotAnimation = (pointAmount: number, pointWidth: number, p
             return;
         }
 
-        const context = canvasElement.getContext('2d') as CanvasRenderingContext2D;
         const secondUnit: number = 1000;
         const secondPerFrame: number = secondUnit / framePerSecond;
         const rendererId = setTimeout(() => {
@@ -224,12 +227,12 @@ export const useLinkedDotAnimation = (pointAmount: number, pointWidth: number, p
                     centerY: centerY
                 }
 
-                const overflowedBoundIndex: number = getOverflowBoundsIndex(newDot, canvasElement);
+                const overflowedBoundIndex: number = getOverflowBoundsIndex(newDot, canvasSize);
                 const isOverflowed: boolean = overflowedBoundIndex !== -1;
 
                 if (isOverflowed) newDot = getReflexedDot(dot, overflowedBoundIndex);
 
-                context.strokeStyle = `rgb(0, 0, 0)`;
+                context.strokeStyle = `rgb(255, 255, 255)`;
                 context.strokeRect(newDot.x, newDot.y, newDot.width, newDot.height);
 
                 return newDot;
@@ -256,7 +259,7 @@ export const useLinkedDotAnimation = (pointAmount: number, pointWidth: number, p
                     if (isInsideRange) {
                         const maximumOpacity: number = 0.8;
                         const opacity: number = maximumOpacity - (distance / linkingRadius);
-                        context.strokeStyle = `rgba(0, 0, 0, ${opacity})`;
+                        context.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
 
                         context.beginPath();
                         context.moveTo(centerX, centerY);
@@ -270,7 +273,5 @@ export const useLinkedDotAnimation = (pointAmount: number, pointWidth: number, p
         }, secondPerFrame);
 
         return () => clearTimeout(rendererId);
-    }, [canvasElement, dots]);
-
-    return setCanvasElement;
+    }, [context, dots, canvasSize]);
 }

@@ -12,11 +12,16 @@ import LinkedDotCanvas from './LinkedDotCanvas';
 import style from './Index.module.scss';
 
 const Index: FunctionComponent = () => {
+    const [canvasSize, setCanavsSize] = useState<CanvasSize>({ width: 500, height: 500 });
+
     return (
         <LinkedDotCanvas
-            pointAmount={50}
-            pointWidth={5}
-            pointHeight={5}
+            dotAmount={50}
+            canvasSize={canvasSize}
+            dotSize={{
+                width: 3,
+                height: 3
+            }}
             linkingRadius={200}
             framePerSecond={144}
         />
