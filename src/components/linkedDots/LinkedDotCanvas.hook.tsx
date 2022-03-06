@@ -63,6 +63,8 @@ const getOverflowedRadian = (radian: number): number => {
     return radian % (Math.PI / 2);
 }
 
+
+
 const getReflexedDot = (currentDot: Dot, reflectionChecker: ReflectionChecker): Dot => {
     const { reflectedX, reflectedY, boundaryIndex } = reflectionChecker;
 
@@ -71,16 +73,34 @@ const getReflexedDot = (currentDot: Dot, reflectionChecker: ReflectionChecker): 
 
     const reflectedRadian = getQuadrantMinRadian(reflectedQuadrantIndex) + ((Math.PI / 2) - getOverflowedRadian(currentDot.radian));
 
-    const isXReflected: boolean = reflectedX > 0;
-    const isYReflected: boolean = reflectedY > 0;
+    // const isXReflected: boolean = reflectedX > 0;
+    // const isYReflected: boolean = reflectedY > 0;
 
-    const newX: number = isXReflected ? reflectedX : currentDot.x;
-    const newY: number = isYReflected ? reflectedY : currentDot.y;
+    // const newX: number = isXReflected ? reflectedX : currentDot.x;
+    // const newY: number = isYReflected ? reflectedY : currentDot.y;
+
+    if (reflectionChecker.boundaryIndex === BoundaryIndex.Bottom) {
+        console.log("reflectedX", reflectedX);
+        console.log("reflectedY", reflectedY);
+
+
+        //     console.log("바닥을 침범했다 !");
+
+        //     const degree: number = reflectedRadian / Math.PI * 180;
+        //     const quadrantIndex: number = Math.floor(degree / 90);
+
+        //     console.log("Y 값", reflectedY);
+
+        //     console.log("원래 방향", originalQuadrantIndex);
+        //     console.log("반사 방향", quadrantIndex);
+    }
+
+
 
     const newDot: Dot = {
         ...currentDot,
-        x: newX,
-        y: newY,
+        x: reflectedX,
+        y: reflectedY,
         radian: reflectedRadian
     }
 
@@ -165,6 +185,7 @@ const getReflectionChecker = (newDot: Dot, canvasSize: CanvasSize): ReflectionCh
     if (isTopOutOfBounds) {
         return {
             ...overflowValidator,
+            reflectedX: x,
             reflectedY: -y,
             boundaryIndex: BoundaryIndex.Top
         };
@@ -175,6 +196,7 @@ const getReflectionChecker = (newDot: Dot, canvasSize: CanvasSize): ReflectionCh
         return {
             ...overflowValidator,
             reflectedX: -x,
+            reflectedY: y,
             boundaryIndex: BoundaryIndex.Left
         };
     }
@@ -183,10 +205,15 @@ const getReflectionChecker = (newDot: Dot, canvasSize: CanvasSize): ReflectionCh
     const isBottomOutOfBounds: boolean = dotBottomY > canvasHeight;
     if (isBottomOutOfBounds) {
         const overflowedY: number = dotBottomY - canvasHeight;
+        const reflectedY: number = canvasHeight - overflowedY - height;
+
+        console.log("canvasHeight", canvasHeight);
+        console.log("dotBottomY", dotBottomY);
 
         return {
             ...overflowValidator,
-            reflectedY: Math.floor(canvasHeight - overflowedY),
+            reflectedX: x,
+            reflectedY: reflectedY,
             boundaryIndex: BoundaryIndex.Bottom
         };
     }
@@ -195,10 +222,12 @@ const getReflectionChecker = (newDot: Dot, canvasSize: CanvasSize): ReflectionCh
     const isRightOutOfBounds: boolean = dotRightX > canvasWidth;
     if (isRightOutOfBounds) {
         const overflowedX: number = dotRightX - canvasWidth;
+        const reflectedX: number = canvasWidth - overflowedX - width;
 
         return {
             ...overflowValidator,
-            reflectedX: Math.floor(canvasWidth - overflowedX),
+            reflectedX: reflectedX,
+            reflectedY: y,
             boundaryIndex: BoundaryIndex.Right
         };
     }
@@ -240,7 +269,9 @@ const drawFrame = (context: CanvasRenderingContext2D, dots: Array<Dot>, canvasSi
         const reflectionChecker: ReflectionChecker = getReflectionChecker(newDot, canvasSize);
         const isOverflowed: boolean = reflectionChecker.boundaryIndex !== -1;
 
-        if (isOverflowed) newDot = getReflexedDot(newDot, reflectionChecker);
+        if (isOverflowed) {
+            newDot = getReflexedDot(newDot, reflectionChecker);
+        }
 
         context.strokeStyle = `rgb(255, 255, 255)`;
         context.strokeRect(newDot.x, newDot.y, newDot.width, newDot.height);
@@ -295,13 +326,13 @@ const drawFrame = (context: CanvasRenderingContext2D, dots: Array<Dot>, canvasSi
 export const useLinkedDotAnimation = (context: CanvasRenderingContext2D | null, dotAmount: number, canvasSize: CanvasSize | undefined, dotSize: DotSize, linkingRadius: number, framePerSecond: number, speedPerSecond: number, dotColor: string, lineColor: string) => {
     const [dots, setDots] = useState<Array<Dot> | null>(null);
 
+    const secondUnit: number = 1000;
+    const secondPerFrame: number = secondUnit / framePerSecond;
+    const speedPerFrame: number = speedPerSecond / framePerSecond;
+
     useEffect(() => {
         if (!context) return;
         if (!canvasSize) return;
-
-        const secondUnit: number = 1000;
-        const secondPerFrame: number = secondUnit / framePerSecond;
-        const speedPerFrame: number = speedPerSecond / framePerSecond;
 
         if (!dots) {
             const initializer = Array<number>(dotAmount).fill(0);

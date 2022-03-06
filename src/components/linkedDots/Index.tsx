@@ -35,7 +35,7 @@ const Index: FunctionComponent = () => {
     return (
         <LinkedDotCanvas
             canvasSize={canvasSize}
-            dotAmount={2}
+            dotAmount={300}
         />
     );
 }
