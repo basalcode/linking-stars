@@ -20,6 +20,12 @@ export interface Position {
     y: number
 }
 
+interface ReflectionChecker {
+    reflectedX: number,
+    reflectedY: number,
+    boundaryIndex: number
+}
+
 // enums
 export enum BoundaryIndex {
     Bottom = 0,
@@ -63,39 +69,19 @@ const getOverflowedRadian = (radian: number): number => {
     return radian % (Math.PI / 2);
 }
 
-
-
 const getReflexedDot = (currentDot: Dot, reflectionChecker: ReflectionChecker): Dot => {
+    const { radian } = currentDot;
     const { reflectedX, reflectedY, boundaryIndex } = reflectionChecker;
 
-    const originalQuadrantIndex: number = getQuadrantIndex(currentDot.radian);
+    const originalQuadrantIndex: number = getQuadrantIndex(radian);
     const reflectedQuadrantIndex = getReflectedQuadrantIndex(originalQuadrantIndex, boundaryIndex);
 
-    const reflectedRadian = getQuadrantMinRadian(reflectedQuadrantIndex) + ((Math.PI / 2) - getOverflowedRadian(currentDot.radian));
-
-    // const isXReflected: boolean = reflectedX > 0;
-    // const isYReflected: boolean = reflectedY > 0;
-
-    // const newX: number = isXReflected ? reflectedX : currentDot.x;
-    // const newY: number = isYReflected ? reflectedY : currentDot.y;
+    const reflectedRadian = getQuadrantMinRadian(reflectedQuadrantIndex) + ((Math.PI / 2) - getOverflowedRadian(radian));
 
     if (reflectionChecker.boundaryIndex === BoundaryIndex.Bottom) {
         console.log("reflectedX", reflectedX);
         console.log("reflectedY", reflectedY);
-
-
-        //     console.log("바닥을 침범했다 !");
-
-        //     const degree: number = reflectedRadian / Math.PI * 180;
-        //     const quadrantIndex: number = Math.floor(degree / 90);
-
-        //     console.log("Y 값", reflectedY);
-
-        //     console.log("원래 방향", originalQuadrantIndex);
-        //     console.log("반사 방향", quadrantIndex);
     }
-
-
 
     const newDot: Dot = {
         ...currentDot,
@@ -107,17 +93,20 @@ const getReflexedDot = (currentDot: Dot, reflectionChecker: ReflectionChecker): 
     return newDot;
 }
 
-const initializeDot = (canvasWidth: number, canvasHeight: number, pointWidth: number, pointHeight: number, id: number, speedPerFrame: number): Dot => {
-    const x: number = Math.floor(Math.random() * (canvasWidth - pointWidth));
-    const y: number = Math.floor(Math.random() * (canvasHeight - pointHeight));
+const initializeDot = (canvasSize: CanvasSize, dotSize: DotSize, id: number, speedPerFrame: number): Dot => {
+    const { width: canvasWidth, height: canvasHeight } = canvasSize;
+    const { width: dotWidth, height: dotHeight } = dotSize;
+
+    const x: number = Math.floor(Math.random() * (canvasWidth - dotWidth));
+    const y: number = Math.floor(Math.random() * (canvasHeight - dotHeight));
     const radian: number = Math.random() * (Math.PI * 2);
 
     const dot: Dot = {
         id: id,
         x: x,
         y: y,
-        width: pointWidth,
-        height: pointHeight,
+        width: dotWidth,
+        height: dotHeight,
         radian: radian,
         speedPerFrame: speedPerFrame
     }
@@ -125,7 +114,7 @@ const initializeDot = (canvasWidth: number, canvasHeight: number, pointWidth: nu
     return dot;
 }
 
-const getInsertionIndex = (sortedDots: Array<Dot>, insertionCoodinate: number): number => {
+const getBinarySearchedIndex = (sortedDots: Array<Dot>, insertionCoodinate: number): number => {
     let startIndex: number = 0;
     let finishIndex: number = sortedDots.length - 1;
     let insertIndex: number = - 1;
@@ -164,16 +153,9 @@ const getInsertionIndex = (sortedDots: Array<Dot>, insertionCoodinate: number): 
     return insertIndex;
 }
 
-interface ReflectionChecker {
-    reflectedX: number,
-    reflectedY: number,
-    boundaryIndex: number
-}
-
 const getReflectionChecker = (newDot: Dot, canvasSize: CanvasSize): ReflectionChecker => {
     const { x, y, width, height }: Dot = newDot;
-    const canvasWidth: number = canvasSize.width;
-    const canvasHeight: number = canvasSize.height;
+    const { width: canvasWidth, height: canvasHeight } = canvasSize;
 
     const overflowValidator: ReflectionChecker = {
         reflectedX: 0,
@@ -248,17 +230,18 @@ const getCenterCoordinate = (coordinate: number, size: number): number => {
 }
 
 const drawFrame = (context: CanvasRenderingContext2D, dots: Array<Dot>, canvasSize: CanvasSize, linkingRadius: number): Array<Dot> => {
-    const canvasWidth: number = canvasSize.width;
-    const cavnasHeight: number = canvasSize.height;
+    const { width: canvasWidth, height: cavnasHeight } = canvasSize;
 
     context.clearRect(0, 0, canvasWidth, cavnasHeight);
 
     const newDots = dots.map((dot: Dot) => {
-        const movementX: number = Math.cos(dot.radian) * dot.speedPerFrame;
-        const movementY: number = Math.sin(dot.radian) * dot.speedPerFrame;
+        const { x, y, radian } = dot;
 
-        const newX: number = dot.x + movementX;
-        const newY: number = dot.y + movementY;
+        const movementX: number = Math.cos(radian) * dot.speedPerFrame;
+        const movementY: number = Math.sin(radian) * dot.speedPerFrame;
+
+        const newX: number = x + movementX;
+        const newY: number = y + movementY;
 
         let newDot: Dot = {
             ...dot,
@@ -269,9 +252,7 @@ const drawFrame = (context: CanvasRenderingContext2D, dots: Array<Dot>, canvasSi
         const reflectionChecker: ReflectionChecker = getReflectionChecker(newDot, canvasSize);
         const isOverflowed: boolean = reflectionChecker.boundaryIndex !== -1;
 
-        if (isOverflowed) {
-            newDot = getReflexedDot(newDot, reflectionChecker);
-        }
+        if (isOverflowed) newDot = getReflexedDot(newDot, reflectionChecker);
 
         context.strokeStyle = `rgb(255, 255, 255)`;
         context.strokeRect(newDot.x, newDot.y, newDot.width, newDot.height);
@@ -282,29 +263,25 @@ const drawFrame = (context: CanvasRenderingContext2D, dots: Array<Dot>, canvasSi
     const sortedNewDots: Array<Dot> = newDots.sort((target: Dot, next: Dot): number => { return target.x - next.x });
 
     sortedNewDots.forEach((standardDot: Dot, index: number): void => {
-        const x: number = standardDot.x;
-        const y: number = standardDot.y;
-        const width: number = standardDot.width;
-        const height: number = standardDot.height;
+        const { x, y, width, height } = standardDot;
 
         const centerX: number = getCenterCoordinate(x, width);
         const centerY: number = getCenterCoordinate(y, height);
 
-        const filterFinishX: number = (centerX + linkingRadius) > canvasWidth ? canvasWidth : (centerX + linkingRadius);
+        const filterEndRange: number = centerX + linkingRadius;
+        const filterEndPositionX: number = filterEndRange > canvasWidth ? canvasWidth : filterEndRange;
 
-        const filteredFinishIndex: number = getInsertionIndex(sortedNewDots, filterFinishX);
+        const filterStartIndex: number = index;
+        const filteredFinishIndex: number = getBinarySearchedIndex(sortedNewDots, filterEndPositionX);
 
-        for (let filteredIndex = index; filteredIndex < filteredFinishIndex; filteredIndex++) {
-            const dotInsideFilter: Dot = sortedNewDots[filteredIndex];
-            const dotInsideFilterX: number = dotInsideFilter.x;
-            const dotInsideFilterY: number = dotInsideFilter.y;
-            const dotInsideFilterWidth: number = dotInsideFilter.width;
-            const dotInsideFilterHeight: number = dotInsideFilter.height;
+        for (let index = filterStartIndex; index < filteredFinishIndex; index++) {
+            const filteredDot: Dot = sortedNewDots[index];
+            const { x: filteredX, y: filteredY, width: filteredWidth, height: filteredHeight } = filteredDot;
 
-            const filteredDotCenterX: number = getCenterCoordinate(dotInsideFilterX, dotInsideFilterWidth);
-            const filteredDotCenterY: number = getCenterCoordinate(dotInsideFilterY, dotInsideFilterHeight);
+            const filteredCenterX: number = getCenterCoordinate(filteredX, filteredWidth);
+            const filteredCenterY: number = getCenterCoordinate(filteredY, filteredHeight);
 
-            const distance: number = getDistance(centerX, centerY, filteredDotCenterX, filteredDotCenterY);
+            const distance: number = getDistance(centerX, centerY, filteredCenterX, filteredCenterY);
             const isInsideRange: boolean = distance <= linkingRadius;
 
             if (isInsideRange) {
@@ -314,13 +291,31 @@ const drawFrame = (context: CanvasRenderingContext2D, dots: Array<Dot>, canvasSi
 
                 context.beginPath();
                 context.moveTo(centerX, centerY);
-                context.lineTo(filteredDotCenterX, filteredDotCenterY);
+                context.lineTo(filteredCenterX, filteredCenterY);
                 context.stroke();
             }
         }
     });
 
     return sortedNewDots;
+}
+
+const getInitializedDots = (dotAmount: number, canvasSize: CanvasSize, dotSize: DotSize, speedPerFrame: number): Array<Dot> => {
+    const initializer = Array<number>(dotAmount).fill(0);
+
+    const initializedDots: Array<Dot> = initializer.map((_, index): Dot => {
+        const { width: cavnasWidth, height: cavnasHeight } = canvasSize;
+        const { width: dotWidth, height: dotHeight } = dotSize;
+
+        const dotId: number = index;
+        const initializedDot: Dot = initializeDot(canvasSize, dotSize, dotId, speedPerFrame);
+
+        return initializedDot;
+    });
+
+    const sortedInitializedDots: Array<Dot> = initializedDots.sort((target: Dot, next: Dot): number => { return target.x - next.x; });
+
+    return sortedInitializedDots;
 }
 
 export const useLinkedDotAnimation = (context: CanvasRenderingContext2D | null, dotAmount: number, canvasSize: CanvasSize | undefined, dotSize: DotSize, linkingRadius: number, framePerSecond: number, speedPerSecond: number, dotColor: string, lineColor: string) => {
@@ -335,24 +330,9 @@ export const useLinkedDotAnimation = (context: CanvasRenderingContext2D | null, 
         if (!canvasSize) return;
 
         if (!dots) {
-            const initializer = Array<number>(dotAmount).fill(0);
+            const initializedDots: Array<Dot> = getInitializedDots(dotAmount, canvasSize, dotSize, speedPerFrame);
 
-            const initializedDots: Array<Dot> = initializer.map((_, index): Dot => {
-                const canvasWidth: number = canvasSize.width;
-                const cavnasHeight: number = canvasSize.height;
-                const dotWidth: number = dotSize.width;
-                const dotHeight: number = dotSize.height;
-
-                const dotId: number = index;
-                const initializedDot: Dot = initializeDot(canvasWidth, cavnasHeight, dotWidth, dotHeight, dotId, speedPerFrame);
-
-                return initializedDot;
-            });
-
-            const sortedInitializedDots: Array<Dot> = initializedDots.sort((target: Dot, next: Dot): number => { return target.x - next.x; });
-
-            setDots(sortedInitializedDots);
-            return;
+            return setDots(initializedDots);
         }
 
         const rendererId = setTimeout(() => {
