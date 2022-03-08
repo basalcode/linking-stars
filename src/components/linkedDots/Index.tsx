@@ -1,11 +1,10 @@
 /* packages */
-import { FunctionComponent, useEffect, useState } from 'react';
+import { FunctionComponent, ReactNode, useEffect, useState } from 'react';
 
 /* types */
 import { CanvasSize } from './LinkedDotCanvas';
 
 /* components */
-import Layout from 'components/common/Layout';
 import LinkedDotCanvas from './LinkedDotCanvas';
 
 /* style */
@@ -15,19 +14,17 @@ const Index: FunctionComponent = () => {
     const [canvasSize, setCanvasSize] = useState<CanvasSize>({ width: 0, height: 0 });
 
     useEffect(() => {
-        setCanvasSize({
+        const onResize = () => setCanvasSize({
             width: window.innerWidth,
             height: window.innerHeight
         });
 
-        const onResize = () => {
-            setCanvasSize({
-                width: window.innerWidth,
-                height: window.innerHeight
-            });
-        }
+        onResize();
 
         window.addEventListener('resize', onResize);
+
+        const htmlElement = document.querySelector('html') as HTMLElement;
+        htmlElement.style.overflow = "hidden"
 
         return () => window.removeEventListener('resize', onResize);
     }, []);

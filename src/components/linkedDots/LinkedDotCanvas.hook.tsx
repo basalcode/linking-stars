@@ -78,11 +78,6 @@ const getReflexedDot = (currentDot: Dot, reflectionChecker: ReflectionChecker): 
 
     const reflectedRadian = getQuadrantMinRadian(reflectedQuadrantIndex) + ((Math.PI / 2) - getOverflowedRadian(radian));
 
-    if (reflectionChecker.boundaryIndex === BoundaryIndex.Bottom) {
-        console.log("reflectedX", reflectedX);
-        console.log("reflectedY", reflectedY);
-    }
-
     const newDot: Dot = {
         ...currentDot,
         x: reflectedX,
@@ -189,9 +184,6 @@ const getReflectionChecker = (newDot: Dot, canvasSize: CanvasSize): ReflectionCh
         const overflowedY: number = dotBottomY - canvasHeight;
         const reflectedY: number = canvasHeight - overflowedY - height;
 
-        console.log("canvasHeight", canvasHeight);
-        console.log("dotBottomY", dotBottomY);
-
         return {
             ...overflowValidator,
             reflectedX: x,
@@ -229,7 +221,7 @@ const getCenterCoordinate = (coordinate: number, size: number): number => {
     return coordinate + (size / 2);
 }
 
-const drawFrame = (context: CanvasRenderingContext2D, dots: Array<Dot>, canvasSize: CanvasSize, linkingRadius: number): Array<Dot> => {
+const drawFrame = (context: CanvasRenderingContext2D, dots: Array<Dot>, canvasSize: CanvasSize, linkingRadius: number, dotColor: string, lineColor: string): Array<Dot> => {
     const { width: canvasWidth, height: cavnasHeight } = canvasSize;
 
     context.clearRect(0, 0, canvasWidth, cavnasHeight);
@@ -302,17 +294,7 @@ const drawFrame = (context: CanvasRenderingContext2D, dots: Array<Dot>, canvasSi
 
 const getInitializedDots = (dotAmount: number, canvasSize: CanvasSize, dotSize: DotSize, speedPerFrame: number): Array<Dot> => {
     const initializer = Array<number>(dotAmount).fill(0);
-
-    const initializedDots: Array<Dot> = initializer.map((_, index): Dot => {
-        const { width: cavnasWidth, height: cavnasHeight } = canvasSize;
-        const { width: dotWidth, height: dotHeight } = dotSize;
-
-        const dotId: number = index;
-        const initializedDot: Dot = initializeDot(canvasSize, dotSize, dotId, speedPerFrame);
-
-        return initializedDot;
-    });
-
+    const initializedDots: Array<Dot> = initializer.map((_, dotId): Dot => initializeDot(canvasSize, dotSize, dotId, speedPerFrame));
     const sortedInitializedDots: Array<Dot> = initializedDots.sort((target: Dot, next: Dot): number => { return target.x - next.x; });
 
     return sortedInitializedDots;
@@ -328,7 +310,6 @@ export const useLinkedDotAnimation = (context: CanvasRenderingContext2D | null, 
     useEffect(() => {
         if (!context) return;
         if (!canvasSize) return;
-
         if (!dots) {
             const initializedDots: Array<Dot> = getInitializedDots(dotAmount, canvasSize, dotSize, speedPerFrame);
 
@@ -336,11 +317,11 @@ export const useLinkedDotAnimation = (context: CanvasRenderingContext2D | null, 
         }
 
         const rendererId = setTimeout(() => {
-            const newDots: Array<Dot> = drawFrame(context, dots, canvasSize, linkingRadius);
+            const newDots: Array<Dot> = drawFrame(context, dots, canvasSize, linkingRadius, dotColor, lineColor);
 
             setDots(newDots);
         }, secondPerFrame);
 
         return () => clearTimeout(rendererId);
-    }, [context, dots, canvasSize]);
+    }, [context, dots, dotAmount, canvasSize, dotSize, linkingRadius, framePerSecond, speedPerSecond, dotColor, lineColor]);
 }
