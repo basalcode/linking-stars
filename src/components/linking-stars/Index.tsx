@@ -2,13 +2,10 @@
 import { FunctionComponent, ReactNode, useEffect, useState } from 'react';
 
 /* types */
-import { CanvasSize } from './LinkedDotCanvas';
+import { CanvasSize } from './LinkingStarCanvas';
 
 /* components */
-import LinkedDotCanvas from './LinkedDotCanvas';
-
-/* style */
-import style from './Index.module.scss';
+import LinkedDotCanvas from './LinkingStarCanvas';
 
 const Index: FunctionComponent = () => {
     const [canvasSize, setCanvasSize] = useState<CanvasSize>({ width: 0, height: 0 });
@@ -33,8 +30,29 @@ const Index: FunctionComponent = () => {
         <LinkedDotCanvas
             canvasSize={canvasSize}
             dotAmount={100}
+            dotSize={{ width: 1, height: 1 }}
+            linkingRadius={200}
+            framePerSecond={144}
+            speedPerSecond={0.4}
+            canvasColor={'black'}
+            dotColor={'white'}
+            lineColor={'white'}
         />
     );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export default Index;

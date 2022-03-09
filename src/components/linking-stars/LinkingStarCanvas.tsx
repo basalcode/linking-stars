@@ -1,11 +1,8 @@
 /* packages */
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 /* hooks */
-import { useLinkedDotAnimation } from './LinkedDotCanvas.hook';
-
-/* style */
-import style from './LinkedDotCanvas.module.scss';
+import { useLinkedDotAnimation } from './LinkingStarCanvas.hook';
 
 /* intefaces */
 interface LinkedDotCanvasProps {
@@ -36,7 +33,7 @@ const LinkedDotCanvas = ({
     dotSize = { width: 1, height: 1 },
     linkingRadius = 200,
     framePerSecond = 144,
-    speedPerSecond = 100,
+    speedPerSecond = 0.4,
     canvasColor = 'black',
     dotColor = 'white',
     lineColor = 'white'
@@ -55,7 +52,6 @@ const LinkedDotCanvas = ({
 
     return (
         <canvas
-            className={style.canvas}
             ref={setCanvasElement}
             width={canvasSize.width}
             height={canvasSize.height}

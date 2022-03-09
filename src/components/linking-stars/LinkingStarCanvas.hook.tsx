@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 
 /* types */
-import { CanvasSize, DotSize } from './LinkedDotCanvas';
+import { CanvasSize, DotSize } from './LinkingStarCanvas';
 
 // interfaces
 export interface Dot {
@@ -221,73 +221,81 @@ const getCenterCoordinate = (coordinate: number, size: number): number => {
     return coordinate + (size / 2);
 }
 
-const drawFrame = (context: CanvasRenderingContext2D, dots: Array<Dot>, canvasSize: CanvasSize, linkingRadius: number, dotColor: string, lineColor: string): Array<Dot> => {
+const drawDot = (context: CanvasRenderingContext2D, dot: Dot, canvasSize: CanvasSize, speedPerSecond: number) => {
+    const { x, y, radian } = dot;
+
+    const movementX: number = Math.cos(radian) * dot.speedPerFrame;
+    const movementY: number = Math.sin(radian) * dot.speedPerFrame;
+
+    const newX: number = x + movementX;
+    const newY: number = y + movementY;
+
+    let newDot: Dot = {
+        ...dot,
+        x: newX,
+        y: newY,
+        speedPerFrame: speedPerSecond,
+    }
+
+    const reflectionChecker: ReflectionChecker = getReflectionChecker(newDot, canvasSize);
+    const isOverflowed: boolean = reflectionChecker.boundaryIndex !== -1;
+
+    if (isOverflowed) newDot = getReflexedDot(newDot, reflectionChecker);
+
+    context.strokeStyle = `rgb(255, 255, 255)`;
+    context.strokeRect(newDot.x, newDot.y, newDot.width, newDot.height);
+
+    return newDot;
+}
+
+const drawLine = (context: CanvasRenderingContext2D, sortedNewDots: Array<Dot>, index: number, centerX: number, centerY: number, linkingRadius: number) => {
+    const filteredDot: Dot = sortedNewDots[index];
+    const { x: filteredX, y: filteredY, width: filteredWidth, height: filteredHeight } = filteredDot;
+
+    const filteredCenterX: number = getCenterCoordinate(filteredX, filteredWidth);
+    const filteredCenterY: number = getCenterCoordinate(filteredY, filteredHeight);
+
+    const distance: number = getDistance(centerX, centerY, filteredCenterX, filteredCenterY);
+    const isInsideRange: boolean = distance <= linkingRadius;
+
+    if (isInsideRange) {
+        const maximumOpacity: number = 0.8;
+        const opacity: number = maximumOpacity - (distance / linkingRadius);
+        context.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
+
+        context.beginPath();
+        context.moveTo(centerX, centerY);
+        context.lineTo(filteredCenterX, filteredCenterY);
+        context.stroke();
+    }
+}
+
+const drawLines = (context: CanvasRenderingContext2D, sortedNewDots: Array<Dot>, standardDot: Dot, canvasSize: CanvasSize, linkingRadius: number, index: number) => {
+    const { width: canvasWidth, height: canvasHeight } = canvasSize;
+    const { x, y, width, height } = standardDot;
+
+    const centerX: number = getCenterCoordinate(x, width);
+    const centerY: number = getCenterCoordinate(y, height);
+
+    const filterEndRange: number = centerX + linkingRadius;
+    const filterEndPositionX: number = filterEndRange > canvasWidth ? canvasWidth : filterEndRange;
+
+    const filterStartIndex: number = index;
+    const filteredFinishIndex: number = getBinarySearchedIndex(sortedNewDots, filterEndPositionX);
+
+    for (let index = filterStartIndex; index < filteredFinishIndex; index++) {
+        drawLine(context, sortedNewDots, index, centerX, centerY, linkingRadius);
+    }
+}
+
+const drawFrame = (context: CanvasRenderingContext2D, dots: Array<Dot>, canvasSize: CanvasSize, linkingRadius: number, speedPerSecond: number, dotColor: string, lineColor: string): Array<Dot> => {
     const { width: canvasWidth, height: cavnasHeight } = canvasSize;
 
     context.clearRect(0, 0, canvasWidth, cavnasHeight);
 
-    const newDots = dots.map((dot: Dot) => {
-        const { x, y, radian } = dot;
-
-        const movementX: number = Math.cos(radian) * dot.speedPerFrame;
-        const movementY: number = Math.sin(radian) * dot.speedPerFrame;
-
-        const newX: number = x + movementX;
-        const newY: number = y + movementY;
-
-        let newDot: Dot = {
-            ...dot,
-            x: newX,
-            y: newY,
-        }
-
-        const reflectionChecker: ReflectionChecker = getReflectionChecker(newDot, canvasSize);
-        const isOverflowed: boolean = reflectionChecker.boundaryIndex !== -1;
-
-        if (isOverflowed) newDot = getReflexedDot(newDot, reflectionChecker);
-
-        context.strokeStyle = `rgb(255, 255, 255)`;
-        context.strokeRect(newDot.x, newDot.y, newDot.width, newDot.height);
-
-        return newDot;
-    });
-
+    const newDots = dots.map((dot: Dot) => drawDot(context, dot, canvasSize, speedPerSecond));
     const sortedNewDots: Array<Dot> = newDots.sort((target: Dot, next: Dot): number => { return target.x - next.x });
-
-    sortedNewDots.forEach((standardDot: Dot, index: number): void => {
-        const { x, y, width, height } = standardDot;
-
-        const centerX: number = getCenterCoordinate(x, width);
-        const centerY: number = getCenterCoordinate(y, height);
-
-        const filterEndRange: number = centerX + linkingRadius;
-        const filterEndPositionX: number = filterEndRange > canvasWidth ? canvasWidth : filterEndRange;
-
-        const filterStartIndex: number = index;
-        const filteredFinishIndex: number = getBinarySearchedIndex(sortedNewDots, filterEndPositionX);
-
-        for (let index = filterStartIndex; index < filteredFinishIndex; index++) {
-            const filteredDot: Dot = sortedNewDots[index];
-            const { x: filteredX, y: filteredY, width: filteredWidth, height: filteredHeight } = filteredDot;
-
-            const filteredCenterX: number = getCenterCoordinate(filteredX, filteredWidth);
-            const filteredCenterY: number = getCenterCoordinate(filteredY, filteredHeight);
-
-            const distance: number = getDistance(centerX, centerY, filteredCenterX, filteredCenterY);
-            const isInsideRange: boolean = distance <= linkingRadius;
-
-            if (isInsideRange) {
-                const maximumOpacity: number = 0.8;
-                const opacity: number = maximumOpacity - (distance / linkingRadius);
-                context.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
-
-                context.beginPath();
-                context.moveTo(centerX, centerY);
-                context.lineTo(filteredCenterX, filteredCenterY);
-                context.stroke();
-            }
-        }
-    });
+    sortedNewDots.forEach((standardDot: Dot, index: number): void => drawLines(context, sortedNewDots, standardDot, canvasSize, linkingRadius, index,));
 
     return sortedNewDots;
 }
@@ -300,7 +308,16 @@ const getInitializedDots = (dotAmount: number, canvasSize: CanvasSize, dotSize: 
     return sortedInitializedDots;
 }
 
-export const useLinkedDotAnimation = (context: CanvasRenderingContext2D | null, dotAmount: number, canvasSize: CanvasSize | undefined, dotSize: DotSize, linkingRadius: number, framePerSecond: number, speedPerSecond: number, dotColor: string, lineColor: string) => {
+export const useLinkedDotAnimation = (
+    context: CanvasRenderingContext2D | null,
+    dotAmount: number,
+    canvasSize: CanvasSize | undefined,
+    dotSize: DotSize,
+    linkingRadius: number,
+    framePerSecond: number,
+    speedPerSecond: number,
+    dotColor: string,
+    lineColor: string) => {
     const [dots, setDots] = useState<Array<Dot> | null>(null);
 
     const secondUnit: number = 1000;
@@ -310,14 +327,17 @@ export const useLinkedDotAnimation = (context: CanvasRenderingContext2D | null, 
     useEffect(() => {
         if (!context) return;
         if (!canvasSize) return;
+
         if (!dots) {
             const initializedDots: Array<Dot> = getInitializedDots(dotAmount, canvasSize, dotSize, speedPerFrame);
 
-            return setDots(initializedDots);
+            setDots(initializedDots);
+
+            return;
         }
 
         const rendererId = setTimeout(() => {
-            const newDots: Array<Dot> = drawFrame(context, dots, canvasSize, linkingRadius, dotColor, lineColor);
+            const newDots: Array<Dot> = drawFrame(context, dots, canvasSize, linkingRadius, speedPerSecond, dotColor, lineColor);
 
             setDots(newDots);
         }, secondPerFrame);
